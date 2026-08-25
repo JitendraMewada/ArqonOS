@@ -1,0 +1,160 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Phase 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 3. Primitive Definition
+    function isValidId(id) { 
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    // Auth helpers - We don't have email_verified configured by default in AI studio popup easily, but we'll use isSignedIn.
+    function isSignedIn() { return request.auth != null; }
+    
+    // Admin check - The user email from runtime
+    function isAdmin() { 
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); 
+    }
+
+    // Project Logic
+    function getProject(projectId) {
+      return get(/databases/$(database)/documents/projects/$(projectId));
+    }
+
+    function isProjectOwner(projectId) {
+      return isSignedIn() && getProject(projectId).data.ownerId == request.auth.uid;
+    }
+
+    function getTeamMember(projectId) {
+      return get(/databases/$(database)/documents/projects/$(projectId)/team/$(request.auth.uid));
+    }
+    
+    function hasProjectRole(projectId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/projects/$(projectId)/team/$(request.auth.uid));
+    }
+
+    function isProjectAdmin(projectId) {
+      return isProjectOwner(projectId) || (hasProjectRole(projectId) && getTeamMember(projectId).data.role in ['Project Lead', 'Creative Director']);
+    }
+
+    // Phase 2. Validation Blueprints
+    function isValidProject(data) {
+      return data.keys().hasAll(['name', 'code', 'ownerId', 'status', 'createdAt']) && 
+             data.keys().size() <= 30 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.code is string && data.code.size() > 0 && data.code.size() <= 50 &&
+             data.ownerId == request.auth.uid &&
+             data.status in ['Active', 'Completed', 'On Hold', 'Cancelled'] &&
+             data.createdAt == request.time;
+    }
+
+    function isValidDimension(data, projectId) {
+      return data.keys().hasAll(['projectId', 'roomName']) &&
+             data.keys().size() <= 40 &&
+             data.projectId == projectId &&
+             data.roomName is string && data.roomName.size() > 0 && data.roomName.size() <= 200;
+    }
+
+    function isValidSpace(data, projectId) {
+      return data.keys().hasAll(['projectId', 'spaceName']) &&
+             data.keys().size() <= 40 &&
+             data.projectId == projectId &&
+             data.spaceName is string && data.spaceName.size() > 0 && data.spaceName.size() <= 200;
+    }
+
+    // Phase 4. Drafting the "Fortress" Rules
+    match /projects/{projectId} {
+      allow get: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid; 
+      
+      allow create: if isSignedIn() && isValidProject(incoming());
+      
+      allow update: if (isSignedIn() && isValidProject(incoming()) && (
+        isAdmin() ||
+        (
+          isProjectOwner(projectId) && 
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'name', 'code', 'status', 'priority', 'address', 'city', 'state', 'country', 'pincode', 
+            'mapLocation', 'landmark', 'estimatedBudget', 'approvedBudget', 'currentCost', 
+            'startDate', 'endDate', 'totalArea', 'builtUpArea', 'carpetArea', 'unitType', 
+            'roomsCount', 'notes', 'updatedAt'
+          ]) &&
+          incoming().ownerId == existing().ownerId &&
+          incoming().createdAt == existing().createdAt
+        )
+      ));
+      allow delete: if isAdmin() || isProjectOwner(projectId);
+
+      match /team/{teamId} {
+        allow get: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /dimensions/{dimensionId} {
+        allow get: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create: if (isProjectAdmin(projectId) || isAdmin()) && isValidDimension(incoming(), projectId);
+        allow update: if (isProjectAdmin(projectId) || isAdmin()) && isValidDimension(incoming(), projectId);
+        allow delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /spaces/{spaceId} {
+        allow get: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create: if (isProjectAdmin(projectId) || isAdmin()) && isValidSpace(incoming(), projectId);
+        allow update: if (isProjectAdmin(projectId) || isAdmin()) && isValidSpace(incoming(), projectId);
+        allow delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      // Add simple CRUD patterns for the rest of Subcollections defined in Blueprint
+      match /drawings/{drawingId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /moodboards/{moodboardId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /assets/{assetId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /presentations/{presentationId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /approvals/{approvalId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create, update, delete: if isProjectAdmin(projectId) || isAdmin();
+      }
+
+      match /revisions/{revisionId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create: if isProjectAdmin(projectId) || isAdmin();
+        allow update, delete: if false; // Revisions are mutable logs
+      }
+
+      match /comments/{commentId} {
+        allow get, list: if isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin();
+        allow create: if (isProjectOwner(projectId) || hasProjectRole(projectId) || isAdmin());
+        allow update, delete: if existing().authorId == request.auth.uid || isAdmin();
+      }
+    }
+
+    match /activity_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+    }
+  }
+}

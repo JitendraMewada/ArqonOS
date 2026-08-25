@@ -1,0 +1,68 @@
+{
+  "id": "/?source=pwa",
+  "name": "ArqonOS",
+  "short_name": "ArqonOS",
+  "description": "The Operating System for the Built Environment. Connecting B2B workspaces, B2C Nest, and D2C shops with intelligent systems.",
+  "start_url": "/?mode=standalone",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#000000",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "utilities"],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
+  "icons": [
+    {
+      "src": "/assets/icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/android-chrome-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/maskable_icon.png",
+      "sizes": "196x196",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open Quest Task Manager",
+      "short_name": "Quest",
+      "description": "Jump straight into your daily tasks and schedule.",
+      "url": "/quest?source=pwa_shortcut",
+      "icons": [{"src": "/assets/icons/quest-shortcut-96x96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "Open CRM Connect",
+      "short_name": "Connect",
+      "description": "View active leads and communications.",
+      "url": "/connect?source=pwa_shortcut",
+      "icons": [{"src": "/assets/icons/connect-shortcut-96x96.png", "sizes": "96x96"}]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.arqonos.app",
+      "id": "com.arqonos.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/arqonos/idYOUR_APP_ID_HERE"
+    }
+  ],
+  "prefer_related_applications": false
+}

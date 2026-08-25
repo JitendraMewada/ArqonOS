@@ -1,0 +1,274 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A core interior design project entity.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientContact": { "type": "string" },
+        "clientEmail": { "type": "string", "format": "email" },
+        "type": { "type": "string" },
+        "status": { "type": "string", "enum": ["Active", "Completed", "On Hold", "Cancelled"] },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High", "Critical"] },
+        "address": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "country": { "type": "string" },
+        "pincode": { "type": "string" },
+        "mapLocation": { "type": "string" },
+        "landmark": { "type": "string" },
+        "estimatedBudget": { "type": "number" },
+        "approvedBudget": { "type": "number" },
+        "currentCost": { "type": "number" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "totalArea": { "type": "number" },
+        "builtUpArea": { "type": "number" },
+        "carpetArea": { "type": "number" },
+        "unitType": { "type": "string" },
+        "roomsCount": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["name", "code", "ownerId", "status", "createdAt"]
+    },
+    "ProjectTeam": {
+      "title": "Project Team",
+      "description": "User assignments and roles within a project.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "userId": { "type": "string" },
+        "role": { "type": "string", "enum": ["Project Lead", "Lead Designer", "Designer", "Draftsman", "3D Designer", "Site Supervisor", "Coordinator", "Creative Director", "Client"] },
+        "assignedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "userId", "role"]
+    },
+    "ProjectDimension": {
+      "title": "Project Dimension",
+      "description": "Existing site measurements for a room.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "roomName": { "type": "string" },
+        "length": { "type": "number" },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "doorCount": { "type": "number" },
+        "doorWidth": { "type": "number" },
+        "doorHeight": { "type": "number" },
+        "windowCount": { "type": "number" },
+        "windowWidth": { "type": "number" },
+        "windowHeight": { "type": "number" },
+        "sillHeight": { "type": "number" },
+        "lintelHeight": { "type": "number" },
+        "floorCount": { "type": "number" },
+        "ceilingCount": { "type": "number" },
+        "ceilingHeight": { "type": "number" },
+        "wallCount": { "type": "number" },
+        "beamCount": { "type": "number" },
+        "beamHeight": { "type": "number" },
+        "beamWidth": { "type": "number" },
+        "notes": { "type": "string" },
+        "attachments": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["projectId", "roomName"]
+    },
+    "ProjectSpace": {
+      "title": "Project Space",
+      "description": "Proposed design specifications for a space.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "dimensionRoomId": { "type": "string" },
+        "spaceName": { "type": "string" },
+        "spaceType": { "type": "string" },
+        "status": { "type": "string" },
+        "proposedLength": { "type": "number" },
+        "proposedWidth": { "type": "number" },
+        "proposedHeight": { "type": "number" },
+        "doorCount": { "type": "number" },
+        "doorWidth": { "type": "number" },
+        "doorHeight": { "type": "number" },
+        "windowCount": { "type": "number" },
+        "windowWidth": { "type": "number" },
+        "windowHeight": { "type": "number" },
+        "wallAddedCount": { "type": "number" },
+        "wallRemovedCount": { "type": "number" },
+        "falseCeilingRequired": { "type": "boolean" },
+        "ceilingType": { "type": "string" },
+        "floorFinishType": { "type": "string" },
+        "paintFinish": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["projectId", "spaceName"]
+    },
+    "ProjectDrawing": {
+      "title": "Project Drawing",
+      "description": "Technical drawings and plans (both uploaded and studio-created).",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["Upload", "Studio"] },
+        "url": { "type": "string", "description": "URL for uploaded files." },
+        "canvasData": { "type": "string", "description": "JSON string for studio-created drawings." },
+        "version": { "type": "number" },
+        "category": { "type": "string" },
+        "uploadedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "title", "type"]
+    },
+    "ProjectMoodboard": {
+      "title": "Project Moodboard",
+      "description": "Concept and inspiration boards.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "assets": { "type": "array", "items": { "type": "string" } },
+        "colorPalette": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "title"]
+    },
+    "ProjectAsset": {
+      "title": "Project Asset",
+      "description": "Assets library items.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string", "enum": ["Furniture", "Material", "Lighting", "Decor", "Texture", "Reference"] },
+        "url": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "url", "category"]
+    },
+    "ProjectPresentation": {
+      "title": "Project Presentation",
+      "description": "Client presentation materials.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "sections": { "type": "array" },
+        "shareLink": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "title"]
+    },
+    "ProjectApproval": {
+      "title": "Project Approval",
+      "description": "Approval workflow state.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "module": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected", "Revision Requested"] },
+        "comments": { "type": "string" },
+        "updatedBy": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "status"]
+    },
+    "ProjectRevision": {
+      "title": "Project Revision",
+      "description": "History of project changes.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "changeSummary": { "type": "string" },
+        "changedBy": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "changeSummary"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "User comments on project items.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["projectId", "authorId", "content", "createdAt"]
+    },
+    "ActivityLog": {
+      "title": "Activity Log",
+      "description": "Audit log of project activities.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "userId": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Technical project details."
+    },
+    "/projects/{projectId}/team/{teamId}": {
+      "schema": "ProjectTeam",
+      "description": "Team member role assignments."
+    },
+    "/projects/{projectId}/dimensions/{dimensionId}": {
+      "schema": "ProjectDimension",
+      "description": "Site measurement data."
+    },
+    "/projects/{projectId}/spaces/{spaceId}": {
+      "schema": "ProjectSpace",
+      "description": "Space planning and design data."
+    },
+    "/projects/{projectId}/drawings/{drawingId}": {
+      "schema": "ProjectDrawing",
+      "description": "Project drawings and technical plans."
+    },
+    "/projects/{projectId}/moodboards/{moodboardId}": {
+      "schema": "ProjectMoodboard",
+      "description": "Moodboards and inspirations."
+    },
+    "/projects/{projectId}/assets/{assetId}": {
+      "schema": "ProjectAsset",
+      "description": "Project assets and material library."
+    },
+    "/projects/{projectId}/presentations/{presentationId}": {
+      "schema": "ProjectPresentation",
+      "description": "Client presentation documents."
+    },
+    "/projects/{projectId}/approvals/{approvalId}": {
+      "schema": "ProjectApproval",
+      "description": "Project module approval records."
+    },
+    "/projects/{projectId}/revisions/{revisionId}": {
+      "schema": "ProjectRevision",
+      "description": "History of project changes."
+    },
+    "/projects/{projectId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Collaboration comments."
+    },
+    "/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "System-wide activity audit logs."
+    }
+  }
+}

@@ -1,0 +1,127 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isVerifiedUser() { return isSignedIn(); } // Keeping it simple for demo
+    function isValidId(id) { return id is string && id.size() > 0 && id.size() <= 128; }
+
+    function getTeamMember(projectId) {
+      return get(/databases/$(database)/documents/projects/$(projectId)/team/$(request.auth.uid));
+    }
+    
+    function hasProjectRole(projectId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/projects/$(projectId)/team/$(request.auth.uid));
+    }
+
+    function isProjectMember(projectId) {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid ||
+        hasProjectRole(projectId)
+      );
+    }
+
+    function isProjectAdmin(projectId) {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId == request.auth.uid ||
+        (hasProjectRole(projectId) && getTeamMember(projectId).data.role in ['Project Lead', 'Creative Director'])
+      );
+    }
+
+    // --- Validation Blueprints ---
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['name', 'ownerId', 'createdAt']) &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+        data.ownerId == request.auth.uid;
+    }
+
+    function isValidDrawing(data) {
+      return data.keys().hasAll(['projectId', 'title', 'type', 'uploadedBy', 'createdAt', 'updatedAt']) &&
+        data.projectId is string && data.projectId.size() > 0 &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+        data.type in ['Upload', 'Studio'] &&
+        data.uploadedBy == request.auth.uid &&
+        (data.canvasData == null || data.canvasData is string) &&
+        (data.url == null || data.url is string);
+    }
+
+    // --- Main Match Blocks ---
+
+    match /projects/{projectId} {
+      allow get: if isValidId(projectId) && isProjectMember(projectId);
+      allow list: if isSignedIn() && (resource.data.ownerId == request.auth.uid || hasProjectRole(projectId));
+      allow create: if isVerifiedUser() && isValidProject(incoming());
+      allow update: if isVerifiedUser() && isProjectAdmin(projectId) && 
+        incoming().ownerId == existing().ownerId;
+      allow delete: if isVerifiedUser() && existing().ownerId == request.auth.uid;
+
+      match /team/{teamId} {
+        allow read: if isValidId(projectId) && isProjectMember(projectId);
+        allow write: if isValidId(projectId) && isProjectAdmin(projectId);
+      }
+
+      match /dimensions/{dimensionId} {
+        allow read: if isValidId(projectId) && isProjectMember(projectId);
+        allow write: if isValidId(projectId) && isProjectAdmin(projectId);
+      }
+
+      match /spaces/{spaceId} {
+        allow read: if isValidId(projectId) && isProjectMember(projectId);
+        allow write: if isValidId(projectId) && isProjectAdmin(projectId);
+      }
+
+      match /drawings/{drawingId} {
+        allow read: if isValidId(projectId) && isProjectMember(projectId);
+        allow create: if isValidId(projectId) && isProjectAdmin(projectId) && isValidDrawing(incoming()) && incoming().projectId == projectId;
+        allow update: if isValidId(projectId) && isProjectAdmin(projectId) && isValidDrawing(incoming()) && incoming().projectId == projectId;
+        allow delete: if isValidId(projectId) && isProjectAdmin(projectId);
+      }
+
+      match /moodboards/{moodboardId} {
+        allow read: if isProjectMember(projectId);
+        allow write: if isProjectAdmin(projectId);
+      }
+
+      match /assets/{assetId} {
+        allow read: if isProjectMember(projectId);
+        allow write: if isProjectAdmin(projectId);
+      }
+
+      match /presentations/{presentationId} {
+        allow read: if isProjectMember(projectId);
+        allow write: if isProjectAdmin(projectId);
+      }
+
+      match /approvals/{approvalId} {
+        allow read: if isProjectMember(projectId);
+        allow write: if isProjectAdmin(projectId);
+      }
+
+      match /revisions/{revisionId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if isProjectAdmin(projectId);
+        allow update, delete: if false; // Revisions are immutable logs
+      }
+
+      match /comments/{commentId} {
+        allow read: if isProjectMember(projectId);
+        allow create: if isProjectMember(projectId);
+        allow update, delete: if isProjectMember(projectId) && existing().authorId == request.auth.uid;
+      }
+    }
+
+    match /activity_logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+    }
+  }
+}
