@@ -2,6 +2,7 @@ import React from 'react';
 import { StudioHelp } from './StudioHelp';
 import { StudioProvider, useStudio } from './StudioContext';
 import { StudioDashboard } from './StudioDashboard';
+import { StudioTemplates } from './StudioTemplates';
 import { ProjectLayout } from './projects/ProjectLayout';
 import { cn } from '../../../../lib/utils';
 
@@ -23,7 +24,7 @@ function StudioContent({ activePage, onNavigate }: Omit<StudioAppProps, 'navigat
   switch (activePage) {
     case 'Help': return <StudioHelp />;
     case 'Dashboard': return <StudioDashboard />;
-    case 'Templates': return <div className="flex-1 flex items-center justify-center text-slate-500">Templates module coming soon...</div>;
+    case 'Templates': return <StudioTemplates />;
     case 'Collaboration': return <div className="flex-1 flex items-center justify-center text-slate-500">Collaboration module coming soon...</div>;
     case 'Settings': return <div className="flex-1 flex items-center justify-center text-slate-500">Settings module coming soon...</div>;
     default: return <StudioDashboard />;

@@ -193,8 +193,8 @@ export function QuestCalendar() {
 
   return (
     <div className="flex flex-col animate-in fade-in duration-300">
-       <ActionModal isOpen={isModalOpen} type="event" onClose={() => setIsModalOpen(false)} />
-       <EventDetailModal ev={selectedEvent} onClose={() => setSelectedEvent(null)} />
+       {isModalOpen && <ActionModal isOpen={isModalOpen} type="event" onClose={() => setIsModalOpen(false)} />}
+       {selectedEvent && <EventDetailModal ev={selectedEvent} onClose={() => setSelectedEvent(null)} />}
        
        {/* Top Header Bar */}
        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm z-10 text-left bg-white dark:bg-slate-900 sticky top-0">

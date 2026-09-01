@@ -32,7 +32,9 @@ export function QuestOverview() {
   return (
     <div className="flex flex-col gap-10 animate-in fade-in duration-300 w-full">
       <div className="max-w-6xl mx-auto w-full flex flex-col gap-10">
-        <ActionModal isOpen={actionModal.isOpen} type={actionModal.type} onClose={() => setActionModal({ ...actionModal, isOpen: false })} />
+        {actionModal.isOpen && (
+          <ActionModal isOpen={actionModal.isOpen} type={actionModal.type} onClose={() => setActionModal({ ...actionModal, isOpen: false })} />
+        )}
         
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="text-left w-full">

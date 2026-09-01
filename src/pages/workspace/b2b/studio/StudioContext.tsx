@@ -188,18 +188,42 @@ export interface MoodboardElement {
   isVellum?: boolean;
 }
 
+export interface EditorialSwatch {
+  id: string;
+  hex: string;
+  label: string;
+}
+
+export interface EditorialMaterial {
+  id: string;
+  hex?: string;
+  name: string;
+  note: string;
+}
+
 export interface Moodboard {
   id: string;
   projectId: string;
   name: string;
-  layoutType: 'grid' | 'artistic';
+  layoutType: 'grid' | 'artistic' | 'editorial';
+  // Editorial template fields (from Bohemian, Japandi, Minimalist specs)
+  editorialTheme?: 'bohemian' | 'japandi' | 'minimalist';
+  eyebrow?: string;
+  tagline?: string;
+  clientName?: string;
+  roomName?: string;
+  conceptDate?: string;
+  editorialConcept?: string;
+  swatches?: EditorialSwatch[];
+  tiles?: string[];
+  materials?: EditorialMaterial[];
   // Legacy fields for grid
   heroSlot?: string;
   narrative?: string;
   technicalGrid?: string[];
   materialPalette?: string[];
   colorPalette?: string[];
-  // New fields for artistic
+  // Fields for artistic
   elements?: MoodboardElement[];
   createdAt: any;
   updatedAt: any;
@@ -806,6 +830,40 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
           
           // Seed initial placeholder moodboards
           const seedBoards: Moodboard[] = [
+            {
+              id: 'seed-0',
+              projectId,
+              name: 'Living Room Concept (Bohemian)',
+              layoutType: 'editorial',
+              editorialTheme: 'bohemian',
+              eyebrow: 'INTERIOR CONCEPT',
+              tagline: 'BOHEMIAN LIVING ROOM',
+              clientName: 'Sarah Jenkins',
+              roomName: 'Main Living & Lounge Space',
+              conceptDate: 'OCTOBER 2026',
+              editorialConcept: 'A celebration of warmth, curated natural textures, layered botanical greens, and handwoven rattan. Grounded in terracotta and sun-bleached linen to foster organic, sunlit comfort.',
+              swatches: [
+                { id: 'sw-1', hex: '#B5583A', label: 'Terracotta' },
+                { id: 'sw-2', hex: '#4A5D4E', label: 'Sage Leaf' },
+                { id: 'sw-3', hex: '#E8D8C8', label: 'Linen Oat' },
+                { id: 'sw-4', hex: '#D19A66', label: 'Rattan Ochre' },
+                { id: 'sw-5', hex: '#2B2B28', label: 'Charcoal Timber' }
+              ],
+              tiles: [
+                'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1000&auto=format&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1000&auto=format&fit=crop&q=80',
+                'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1000&auto=format&fit=crop&q=80'
+              ],
+              materials: [
+                { id: 'mat-1', name: 'Bouclé Armchair', note: 'Cream bouclé wool with oiled walnut base' },
+                { id: 'mat-2', name: 'Natural Rattan Pendant', note: 'Handwoven natural bamboo bell lamp' },
+                { id: 'mat-3', name: 'Limewash Accent Wall', note: 'Bauwerk warm sand breathable mineral wash' },
+                { id: 'mat-4', name: 'Jute & Wool Area Rug', note: 'Organic woven diamond pattern, 240x300cm' },
+                { id: 'mat-5', name: 'Terracotta Planters', note: 'Hand-thrown artisanal earthen pots' }
+              ],
+              createdAt: new Date(),
+              updatedAt: new Date()
+            },
             {
               id: 'seed-1',
               projectId,

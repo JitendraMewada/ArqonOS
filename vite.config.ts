@@ -17,10 +17,14 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'react': path.resolve(__dirname, 'node_modules/react'),
+        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime'),
       },
       dedupe: [
         'react',
         'react-dom',
+        'react-router-dom',
         'firebase',
         'firebase/app',
         'firebase/auth',
@@ -47,9 +51,9 @@ export default defineConfig(({mode}) => {
       ],
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify - file watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
+      host: '0.0.0.0',
+      port: 3000,
+      hmr: false,
     },
   };
 });

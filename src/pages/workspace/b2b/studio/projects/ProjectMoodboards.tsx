@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Palette, Layout, Trash2, Save, Box,
   Image as ImageIcon, Type, Grid3X3, Layers, 
-  ChevronRight, Download, PlusCircle,
+  ChevronRight, Download, PlusCircle, Sparkles,
   X, Search, Filter, Loader2, Maximize2, MousePointer2
 } from 'lucide-react';
 import { useStudio, type Moodboard, type MoodboardElement } from '../StudioContext';
@@ -11,6 +11,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { MoodboardArtisticCanvas } from '../components/MoodboardArtisticCanvas';
+import { MoodboardEditorialCanvas } from '../components/MoodboardEditorialCanvas';
+import { MoodboardTemplateModal } from '../components/MoodboardTemplateModal';
+import { MoodboardTemplatePreset } from '../data/moodboardTemplates';
 
 export function ProjectMoodboards({ projectId }: { projectId: string }) {
   const { 
@@ -26,6 +29,7 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showAssetLibrary, setShowAssetLibrary] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [activeSlot, setActiveSlot] = useState<{ section: string, index?: number, elementId?: string } | null>(null);
   const [projectAssets, setProjectAssets] = useState<any[]>([]);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -60,16 +64,32 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
     }
   };
 
-  const handleCreateBoard = async () => {
+  const handleSelectTemplate = async (template: MoodboardTemplatePreset | null, fallbackLayout: 'editorial' | 'artistic' | 'grid' = 'editorial') => {
+    const layout = template ? template.layoutType : fallbackLayout;
+    const name = template ? template.name : (
+      layout === 'editorial' ? `Editorial Concept ${moodboards.length + 1}` :
+      layout === 'artistic' ? `Artistic Concept ${moodboards.length + 1}` : `Technical A3 Grid ${moodboards.length + 1}`
+    );
+
     const newBoard: Partial<Moodboard> = {
-      name: `Artistic Concept ${moodboards.length + 1}`,
-      layoutType: 'artistic',
-      elements: [],
-      heroSlot: '',
-      narrative: '',
-      technicalGrid: ['', '', '', ''],
-      materialPalette: ['', '', '', ''],
-      colorPalette: ['#f97316', '#0f172a', '#1e293b', '#334155', '#475569'],
+      name,
+      layoutType: layout,
+      editorialTheme: template?.editorialTheme || 'bohemian',
+      eyebrow: template?.eyebrow,
+      tagline: template?.tagline,
+      clientName: template?.clientName,
+      roomName: template?.roomName,
+      conceptDate: template?.conceptDate,
+      editorialConcept: template?.editorialConcept,
+      swatches: template?.swatches,
+      tiles: template?.tiles,
+      materials: template?.materials,
+      elements: template?.elements ? (template.elements as any) : [],
+      heroSlot: template?.heroSlot || '',
+      narrative: template?.narrative || '',
+      technicalGrid: template?.technicalGrid || ['', '', '', ''],
+      materialPalette: template?.materialPalette || ['', '', '', ''],
+      colorPalette: template?.colorPalette || ['#f97316', '#0f172a', '#1e293b', '#334155', '#475569'],
     };
 
     try {
@@ -81,6 +101,10 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
     } catch (err) {
       console.error('Failed to create board:', err);
     }
+  };
+
+  const handleCreateBoard = async () => {
+    setShowTemplateModal(true);
   };
 
   const handleUpdateBoard = async (data: Partial<Moodboard>) => {
@@ -143,6 +167,14 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
         );
         handleUpdateBoard({ elements: newElements });
       }
+    } else if (section === 'editorial' && index !== undefined) {
+      const currentTiles = [...(activeBoard.tiles || [
+        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80'
+      ])];
+      currentTiles[index] = url;
+      handleUpdateBoard({ tiles: currentTiles });
     } else {
       const updates: Partial<Moodboard> = {};
       if (section === 'hero') {
@@ -270,11 +302,11 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
             ))}
             <button 
               onClick={handleCreateBoard}
-              className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-orange-500 hover:border-orange-500/50 transition-all active:scale-95 flex items-center gap-2"
-              title="Add New Board"
+              className="px-3 py-2 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:text-white hover:bg-orange-500 transition-all active:scale-95 flex items-center gap-2"
+              title="Add New Board or Template"
             >
-              <Plus className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">New Board</span>
+              <Sparkles className="w-4 h-4" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">New Board / Template</span>
             </button>
           </div>
         </div>
@@ -328,24 +360,37 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 pr-4 border-r border-slate-800">
                     <button 
+                      onClick={() => handleUpdateBoard({ layoutType: 'editorial' })}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold",
+                        activeBoard.layoutType === 'editorial' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-slate-900 text-slate-400 hover:text-white"
+                      )}
+                      title="Editorial Presentation Layout"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Editorial</span>
+                    </button>
+                    <button 
                       onClick={() => handleUpdateBoard({ layoutType: 'grid' })}
                       className={cn(
-                        "p-2 rounded-xl transition-all",
+                        "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold",
                         activeBoard.layoutType === 'grid' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-slate-900 text-slate-400 hover:text-white"
                       )}
-                      title="Grid Layout"
+                      title="ISO A3 Technical Grid"
                     >
                       <Grid3X3 className="w-3.5 h-3.5" />
+                      <span>A3 Grid</span>
                     </button>
                     <button 
                       onClick={() => handleUpdateBoard({ layoutType: 'artistic' })}
                       className={cn(
-                        "p-2 rounded-xl transition-all",
+                        "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold",
                         activeBoard.layoutType === 'artistic' ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-slate-900 text-slate-400 hover:text-white"
                       )}
-                      title="Artistic Layout"
+                      title="Artistic Canvas Layout"
                     >
                       <Layers className="w-3.5 h-3.5" />
+                      <span>Canvas</span>
                     </button>
                   </div>
 
@@ -375,7 +420,18 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
               </div>
 
               {/* Conditional Layout Rendering */}
-              {activeBoard.layoutType === 'artistic' ? (
+              {activeBoard.layoutType === 'editorial' ? (
+                <div ref={canvasRef} className="w-full">
+                  <MoodboardEditorialCanvas
+                    moodboard={activeBoard}
+                    onUpdate={handleUpdateBoard}
+                    onSelectSlot={(tileIndex) => {
+                      setActiveSlot({ section: 'editorial', index: tileIndex });
+                      setShowAssetLibrary(true);
+                    }}
+                  />
+                </div>
+              ) : activeBoard.layoutType === 'artistic' ? (
                 <div ref={canvasRef} className="w-full">
                   <MoodboardArtisticCanvas 
                     moodboard={activeBoard} 
@@ -591,6 +647,12 @@ export function ProjectMoodboards({ projectId }: { projectId: string }) {
           </>
         )}
       </AnimatePresence>
+
+      <MoodboardTemplateModal 
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        onSelectTemplate={handleSelectTemplate}
+      />
     </div>
   );
 }
