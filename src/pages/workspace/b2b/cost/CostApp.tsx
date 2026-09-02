@@ -1,8 +1,10 @@
 import React from 'react';
 import { CostHelp } from './CostHelp';
 import { CostOverview } from './CostOverview';
-import { cn } from '../../../../lib/utils';
-import { Database, Wallet, Receipt, PieChart, TrendingUp } from 'lucide-react';
+import { CostBudgetPage } from './CostBudgetPage';
+import { CostExpensePage } from './CostExpensePage';
+import { CostReportsPage } from './CostReportsPage';
+import { CostProvider } from './CostContext';
 
 interface CostAppProps {
   activePage: string;
@@ -11,31 +13,33 @@ interface CostAppProps {
 }
 
 export function CostApp({ activePage, onNavigate, navigateToApp }: CostAppProps) {
-  const pages = ['Overview', 'Budget Page', 'Expense Page', 'Reports Page', 'Help'];
-  
-  if (activePage === 'Help') return <CostHelp />;
-
-  if (activePage === 'Overview') return <CostOverview />;
+  const renderContent = () => {
+    switch (activePage) {
+      case 'Budget Page':
+      case 'Budget':
+        return <CostBudgetPage />;
+      case 'Expense Page':
+      case 'Expenses':
+      case 'Expense':
+        return <CostExpensePage />;
+      case 'Reports Page':
+      case 'Reports':
+      case 'Report':
+        return <CostReportsPage />;
+      case 'Help':
+        return <CostHelp />;
+      case 'Overview':
+      default:
+        return <CostOverview />;
+    }
+  };
 
   return (
-    <div className="w-full h-full flex flex-col animate-in fade-in duration-500">
-      <div className="flex-grow flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-900/50">
-        <div className="text-center max-w-lg">
-          <div className="w-20 h-20 bg-slate-500/10 rounded-xl flex items-center justify-center mx-auto mb-8 border border-slate-500/20 shadow-lg shadow-slate-500/5">
-            <Database className="w-10 h-10 text-slate-600" />
-          </div>
-          <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">
-            Cost: <span className="text-slate-500">{activePage}</span>
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-lg mb-10 leading-relaxed font-semibold">
-            Systemic budgeting and financial control are being prepared. ArqonOS ledger logic is being finalized.
-          </p>
-          <div className="p-6 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm inline-flex items-center gap-3">
-             <div className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
-             <span className="text-xs font-black uppercase tracking-widest text-slate-400">Verifying Ledger Core...</span>
-          </div>
-        </div>
+    <CostProvider>
+      <div className="w-full h-full flex flex-col">
+        {renderContent()}
       </div>
-    </div>
+    </CostProvider>
   );
 }
+

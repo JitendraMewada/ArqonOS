@@ -249,8 +249,9 @@ export function WorkspaceDashboard() {
   };
 
   const navigateToApp = (appId: string, pageName: string) => {
-    setActiveApp(appId);
-    setActiveAppPage((prev) => ({ ...prev, [appId]: pageName }));
+    const normalizedAppId = appId.toLowerCase();
+    setActiveApp(normalizedAppId);
+    setActiveAppPage((prev) => ({ ...prev, [normalizedAppId]: pageName }));
     setIsSidebarMobileOpen(false);
   };
 
@@ -655,6 +656,10 @@ export function WorkspaceDashboard() {
         isOpen={showChangelog}
         activeApp={apps.find((a) => a.id === activeApp)?.name || "ArqonOS"}
         onClose={() => setShowChangelog(false)}
+        onNavigateToEngine={(engineId) => {
+          navigateToApp(engineId, 'Overview');
+          setShowChangelog(false);
+        }}
       />
     </div>
   );

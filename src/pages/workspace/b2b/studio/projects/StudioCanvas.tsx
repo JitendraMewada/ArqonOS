@@ -30,7 +30,7 @@ interface CanvasElement {
 interface StudioCanvasProps {
   sketchId: string;
   projectId: string;
-  initialData: string;
+  initialData?: string;
 }
 
 export function StudioCanvas({ sketchId, projectId, initialData }: StudioCanvasProps) {
@@ -82,11 +82,16 @@ export function StudioCanvas({ sketchId, projectId, initialData }: StudioCanvasP
 
   // Initialize data
   useEffect(() => {
+    if (!initialData || initialData === 'undefined' || initialData === 'null') {
+      return;
+    }
     try {
       const data = JSON.parse(initialData);
-      if (data.elements) setElements(data.elements);
-      if (data.zoom) setScale(data.zoom);
-      if (data.pan) setPosition(data.pan);
+      if (data && typeof data === 'object') {
+        if (Array.isArray(data.elements)) setElements(data.elements);
+        if (typeof data.zoom === 'number') setScale(data.zoom);
+        if (data.pan && typeof data.pan === 'object') setPosition(data.pan);
+      }
     } catch (err) {
       console.error("Failed to parse initial canvas data", err);
     }

@@ -1,92 +1,135 @@
 import React from 'react';
-import { HelpCircle, LineChart, LayoutDashboard, Activity, BarChart, TrendingUp, Target, Search, Info, ShieldCheck, Zap } from 'lucide-react';
+import {
+  HelpCircle,
+  LineChart,
+  LayoutDashboard,
+  Activity,
+  BarChart,
+  TrendingUp,
+  Target,
+  Search,
+  Info,
+  ShieldCheck,
+  Zap,
+  Layers,
+  Users,
+  Truck,
+  Database,
+  Globe,
+  Brain,
+  CheckCircle2,
+  FileSpreadsheet
+} from 'lucide-react';
+import { cn } from '../../../../lib/utils';
 
 export function InsightHelp() {
-  const categories = [
+  const documentationSections = [
     {
-      title: "Performance Dashboards",
-      icon: <LayoutDashboard className="w-4 h-4 text-slate-500" />,
-      topics: [
-        "Real-time Pulse: View the live operational status of all projects across Flow and Quest.",
-        "Team Efficiency: Analyze task completion rates and personnel workload distribution.",
-        "Operational Health: Systemic red-flag detection for blocked stages or late tasks."
+      title: '1. Executive Telemetry & Health Scoring',
+      icon: <LayoutDashboard className="w-4 h-4 text-[#94a3b8]" />,
+      summary: 'Aggregates multi-source KPIs into a single composite project health score (0-100).',
+      points: [
+        { label: 'Composite Health Score', desc: 'Weighted synthesis of Cost CPI (30%), Schedule SPI (30%), Drawing sign-off velocity (20%), and Vendor SLA on-time rate (20%).' },
+        { label: 'Portfolio vs Project Scope', desc: 'Switch seamlessly between the global portfolio executive level and individual site deep dives without data re-entry.' },
+        { label: 'Live Data Streams', desc: 'Real-time synchronization with Studio, Cost, Flow, Quest, Vendor, People, and Connect engines.' }
       ]
     },
     {
-      title: "Data Analytics",
-      icon: <LineChart className="w-4 h-4 text-blue-500" />,
-      topics: [
-        "Historical Trends: Compare current project timelines against company benchmarks.",
-        "Profitability Drill-down: Detailed ROI analysis on a per-project or per-vendor basis.",
-        "Bottleneck Detection: Identify recurring friction points in your systemic workflows."
+      title: '2. Earned Value Management (EVM) & SPI/CPI',
+      icon: <Activity className="w-4 h-4 text-[#3b82f6]" />,
+      summary: 'Rigorous engineering metrics to calculate cost and schedule efficiency before delays happen.',
+      points: [
+        { label: 'Schedule Performance Index (SPI)', desc: 'SPI = Earned Value (EV) / Planned Value (PV). An SPI > 1.0 indicates milestone progression ahead of contract target.' },
+        { label: 'Cost Performance Index (CPI)', desc: 'CPI = Earned Value (EV) / Actual Cost (AC). A CPI > 1.0 indicates work is being delivered under estimated budget.' },
+        { label: 'Critical Path Radar', desc: 'Tracks dependencies such as marine port glass delivery or MEP ceiling 1st fix to prevent cascading milestone slippage.' }
       ]
     },
     {
-      title: "Systemic Forecasts",
-      icon: <Activity className="w-4 h-4 text-emerald-500" />,
-      topics: [
-        "Predictive Roadmap: Model future project timelines based on current resource burn.",
-        "Revenue Projection: Integrated pipeline probability linked to Connect deal stages.",
-        "Capacity Planning: Automated suggestions for team scaling based on workload trends."
+      title: '3. Audit & Reporting Studio',
+      icon: <FileSpreadsheet className="w-4 h-4 text-emerald-500" />,
+      summary: 'Audit-verified multi-engine statements ready for partner review and financial audits.',
+      points: [
+        { label: 'Executive P&L Statements', desc: 'Consolidates contract invoices, cash collected, actual subcontractor disbursements, and gross profit margins.' },
+        { label: 'Space-Wise Cost Variance', desc: 'Direct comparative analysis linking Studio room dimensions with Cost committed purchase orders.' },
+        { label: 'Multi-Format Export', desc: 'Instant generation of audit reports in PDF, XLSX spreadsheet, and CSV formats.' }
+      ]
+    },
+    {
+      title: '4. Predictive AI & What-If Sandbox',
+      icon: <Brain className="w-4 h-4 text-[#A0D6B4]" />,
+      summary: 'Stochastic sensitivity modeling to project future cashflow, margin erosion, and handover dates.',
+      points: [
+        { label: 'Sensitivity Sliders', desc: 'Dynamically test changes in material inflation, labor multipliers, subcontractor delays, or scope additions in real-time.' },
+        { label: 'Completion Predictor', desc: 'AI forecasted handover dates with confidence percentages based on historical contractor velocity.' },
+        { label: 'Proactive Savings Radar', desc: 'Identifies bulk procurement rebates and value-engineering opportunities to protect gross margins.' }
       ]
     }
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-slate-950 overflow-y-auto animate-in fade-in duration-500 text-left">
-      <div className="p-8 max-w-5xl mx-auto w-full">
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6 border border-slate-100 dark:border-slate-800">
+    <div className="h-full flex flex-col bg-white dark:bg-slate-950 overflow-y-auto animate-in fade-in duration-300 text-left pr-1">
+      <div className="p-6 max-w-5xl mx-auto w-full space-y-8">
+        {/* Header */}
+        <div>
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#94a3b81a] text-[#94a3b8] text-[10px] font-black uppercase tracking-wider mb-3 border border-[#94a3b833]">
             <LineChart className="w-3.5 h-3.5" />
-            Strategic Documentation
+            <span>Architecture & Operational Manual</span>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
-            Insight: The <span className="text-slate-500">Analytics Engine</span>
+          <h1 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            Insight: <span className="text-[#94a3b8]">Intelligence & Analytics Engine</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg mb-10 leading-relaxed font-semibold max-w-3xl">
-            Insight is the intelligence layer of ArqonOS. It transforms the raw data generated in Quest, Flow, and Cost into actionable strategic decisions for your business.
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 font-medium max-w-3xl leading-relaxed">
+            The Insight engine acts as the central cognitive layer of ArqonOS. It automatically digests the operational activity of Quest, Flow, Studio, Cost, Vendor, and People into actionable strategic intelligence.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {categories.map((cat, i) => (
-            <div key={i} className="p-8 rounded-xl border border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative">
-              <div className="mb-4 w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center shadow-inner">
-                {cat.icon}
+        {/* Core Sections Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {documentationSections.map((sec, i) => (
+            <div
+              key={i}
+              className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    {sec.icon}
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 dark:text-white text-sm">{sec.title}</h3>
+                </div>
+                <p className="text-xs text-slate-500 mb-4">{sec.summary}</p>
+
+                <div className="space-y-3">
+                  {sec.points.map((pt, j) => (
+                    <div key={j} className="text-xs">
+                      <strong className="text-slate-800 dark:text-slate-200 block">{pt.label}</strong>
+                      <span className="text-slate-500 dark:text-slate-400 leading-relaxed">{pt.desc}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{cat.title}</h3>
-              <ul className="space-y-4">
-                {cat.topics.map((topic, j) => {
-                  const [bold, rest] = topic.split(': ');
-                  return (
-                    <li key={j} className="text-sm text-slate-500 dark:text-slate-400 flex items-start gap-3 leading-relaxed">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-500 mt-2 flex-shrink-0" />
-                      <div>
-                        <strong className="text-slate-700 dark:text-slate-200 block mb-0.5">{bold}</strong>
-                        {rest}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
             </div>
           ))}
         </div>
 
-        <div className="p-10 rounded-xl bg-indigo-600 text-white shadow-2xl relative overflow-hidden text-center md:text-left">
-           <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-              <div className="w-24 h-24 bg-white/20 rounded-xl flex items-center justify-center shrink-0 border border-white/20 backdrop-blur-xl">
-                 <Target className="w-12 h-12 text-white" />
-              </div>
-              <div className="space-y-2">
-                 <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-2">Systems beat Skill</h2>
-                 <p className="text-indigo-100 text-sm leading-relaxed max-w-2xl font-medium">
-                    The Insight module proves the Arqon core thesis. By aggregating data across the entire ecosystem, we eliminate the need for guesswork, allowing you to manage your business with scientific precision.
-                 </p>
-              </div>
-           </div>
-           <LineChart className="absolute -right-20 -bottom-20 w-[30rem] h-[30rem] text-white/5 rotate-12 pointer-events-none" />
-           <Zap className="absolute top-10 right-10 w-12 h-12 text-white/10 animate-pulse" />
+        {/* Roles & Operational Matrix */}
+        <div className="p-6 rounded-xl bg-slate-900 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#94a3b833] text-[#94a3b8]">
+              Role Distribution
+            </span>
+            <h3 className="text-xl font-black">Analysts, Partners & Project Leads</h3>
+            <p className="text-xs text-slate-300 leading-relaxed font-medium">
+              <strong>Analyst / Finance Leads:</strong> Generate audit reports, track CPI/SPI indicators, and analyze subcontractor cost variances.<br />
+              <strong>Managers & Directors:</strong> Utilize the What-If Sandbox to negotiate change orders, mitigate supply bottlenecks, and guarantee profit margins.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 text-center shrink-0 w-full md:w-auto">
+            <span className="text-[10px] text-slate-400 font-bold block uppercase">ArqonOS Principle</span>
+            <span className="text-base font-black text-white block mt-0.5">Systems Beat Skill</span>
+            <span className="text-[11px] text-emerald-400 font-semibold block mt-1">100% Automated Synthesis</span>
+          </div>
         </div>
       </div>
     </div>

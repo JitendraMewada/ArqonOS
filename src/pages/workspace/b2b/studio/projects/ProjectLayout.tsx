@@ -16,6 +16,9 @@ import { SpacesList } from './SpacesList';
 import { ProjectSketch } from './ProjectSketch';
 import { ProjectAssets } from './ProjectAssets';
 import { ProjectMoodboards } from './ProjectMoodboards';
+import { ProjectPresentations } from './ProjectPresentations';
+import { ProjectApprovals } from './ProjectApprovals';
+import { ProjectRevisions } from './ProjectRevisions';
 import { ProjectSettingsModal } from './ProjectSettingsModal';
 
 export function ProjectLayout() {
@@ -68,6 +71,9 @@ export function ProjectLayout() {
       case 'Sketch': return <ProjectSketch projectId={activeProject.id} />;
       case 'Assets': return <ProjectAssets projectId={activeProject.id} />;
       case 'Moodboards': return <ProjectMoodboards projectId={activeProject.id} />;
+      case 'Presentations': return <ProjectPresentations projectId={activeProject.id} />;
+      case 'Approvals': return <ProjectApprovals projectId={activeProject.id} />;
+      case 'Revisions': return <ProjectRevisions projectId={activeProject.id} />;
       default: return (
         <div className="flex-1 flex items-center justify-center text-slate-500 italic">
           {activeTab} module is coming soon...

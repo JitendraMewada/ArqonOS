@@ -14,6 +14,23 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { 
+  MOCK_TEAM_BY_PROJECT, 
+  MOCK_DIMENSIONS_BY_PROJECT, 
+  MOCK_SPACES_BY_PROJECT, 
+  MOCK_SKETCHES_BY_PROJECT, 
+  MOCK_ASSETS_BY_PROJECT 
+} from './data/mockStudioData';
+
+function safeJsonParse<T>(raw: string | null, fallback: T): T {
+  if (!raw || raw === 'undefined' || raw === 'null') return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return (parsed !== null && parsed !== undefined) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export enum OperationType {
   CREATE = 'create',
@@ -570,8 +587,13 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectMembers = async (projectId: string) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_team_${projectId}`);
-      if (stored) return JSON.parse(stored);
-      return [];
+      if (stored) return safeJsonParse(stored, []);
+      const defaultTeam = MOCK_TEAM_BY_PROJECT[projectId] || [
+        { id: `tm-${projectId}-1`, projectId, userId: 'u-101', name: 'Alara Vance', email: 'alara.vance@arqonos.com', role: 'Project Lead', assignedAt: '2026-05-01' },
+        { id: `tm-${projectId}-2`, projectId, userId: 'u-102', name: 'Marcus Sterling', email: 'marcus.s@arqonos.com', role: 'Lead Designer', assignedAt: '2026-05-02' }
+      ];
+      localStorage.setItem(`mock_team_${projectId}`, JSON.stringify(defaultTeam));
+      return defaultTeam;
     }
     const q = collection(db, 'projects', projectId, 'team');
     const snapshot = await getDocs(q);
@@ -581,7 +603,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const addProjectMember = async (projectId: string, memberData: Partial<TeamMember>) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_team_${projectId}`);
-      const members = stored ? JSON.parse(stored) : [];
+      const members = safeJsonParse<TeamMember[]>(stored, []);
       const newMember = { ...memberData, id: `mock-member-${Date.now()}`, projectId } as TeamMember;
       localStorage.setItem(`mock_team_${projectId}`, JSON.stringify([...members, newMember]));
       return;
@@ -597,7 +619,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     if (user?.uid === 'mock-dev-user-id') {
        const stored = localStorage.getItem(`mock_team_${projectId}`);
        if (stored) {
-         const members = JSON.parse(stored).filter((m: any) => m.id !== memberId);
+         const members = safeJsonParse<TeamMember[]>(stored, []).filter((m: any) => m.id !== memberId);
          localStorage.setItem(`mock_team_${projectId}`, JSON.stringify(members));
        }
        return;
@@ -608,8 +630,36 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectDimensions = async (projectId: string) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_dim_${projectId}`);
-      if (stored) return JSON.parse(stored);
-      return [];
+      if (stored) return safeJsonParse(stored, []);
+      const defaultDims = MOCK_DIMENSIONS_BY_PROJECT[projectId] || [
+        {
+          id: `dim-${projectId}-1`,
+          projectId,
+          roomName: 'Main Suite / Workspace',
+          length: 24,
+          width: 18,
+          height: 12,
+          doorCount: 2,
+          doorWidth: 3.5,
+          doorHeight: 8.5,
+          windowCount: 3,
+          windowWidth: 5,
+          windowHeight: 7.5,
+          sillHeight: 2,
+          lintelHeight: 10,
+          floorCount: 1,
+          ceilingCount: 1,
+          ceilingHeight: 12,
+          wallCount: 4,
+          beamCount: 1,
+          beamHeight: 1.2,
+          beamWidth: 1,
+          notes: 'Standard site measurement baseline.',
+          attachments: []
+        }
+      ];
+      localStorage.setItem(`mock_dim_${projectId}`, JSON.stringify(defaultDims));
+      return defaultDims;
     }
     const q = collection(db, 'projects', projectId, 'dimensions');
     const snapshot = await getDocs(q);
@@ -619,7 +669,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const addProjectDimension = async (projectId: string, dimensionData: Partial<Dimension>) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_dim_${projectId}`);
-      const dims = stored ? JSON.parse(stored) : [];
+      const dims = safeJsonParse<Dimension[]>(stored, []);
       const newDim = { ...dimensionData, id: `mock-dim-${Date.now()}`, projectId } as Dimension;
       localStorage.setItem(`mock_dim_${projectId}`, JSON.stringify([...dims, newDim]));
       return;
@@ -634,8 +684,35 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectSpaces = async (projectId: string) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_space_${projectId}`);
-      if (stored) return JSON.parse(stored);
-      return [];
+      if (stored) return safeJsonParse(stored, []);
+      const defaultSpaces = MOCK_SPACES_BY_PROJECT[projectId] || [
+        {
+          id: `sp-${projectId}-1`,
+          projectId,
+          dimensionRoomId: `dim-${projectId}-1`,
+          spaceName: 'Proposed Primary Space',
+          spaceType: 'Executive Office & Studio',
+          status: 'Approved',
+          proposedLength: 24,
+          proposedWidth: 18,
+          proposedHeight: 11.5,
+          doorCount: 2,
+          doorWidth: 3.5,
+          doorHeight: 8.5,
+          windowCount: 3,
+          windowWidth: 5,
+          windowHeight: 7.5,
+          wallAddedCount: 1,
+          wallRemovedCount: 0,
+          falseCeilingRequired: true,
+          ceilingType: 'Acoustic Slat Wood Ceiling',
+          floorFinishType: 'Herringbone Hardwood Oak',
+          paintFinish: 'Bauwerk Mineral Limewash',
+          notes: 'Architectural space planning complete.'
+        }
+      ];
+      localStorage.setItem(`mock_space_${projectId}`, JSON.stringify(defaultSpaces));
+      return defaultSpaces;
     }
     const q = collection(db, 'projects', projectId, 'spaces');
     const snapshot = await getDocs(q);
@@ -645,7 +722,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const addProjectSpace = async (projectId: string, spaceData: Partial<Space>) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_space_${projectId}`);
-      const spaces = stored ? JSON.parse(stored) : [];
+      const spaces = safeJsonParse<Space[]>(stored, []);
       const newSpace = { ...spaceData, id: `mock-space-${Date.now()}`, projectId } as Space;
       localStorage.setItem(`mock_space_${projectId}`, JSON.stringify([...spaces, newSpace]));
       return;
@@ -660,8 +737,22 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectSketches = async (projectId: string) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_sketches_${projectId}`);
-      if (stored) return JSON.parse(stored);
-      return [];
+      if (stored) return safeJsonParse(stored, []);
+      const defaultSketches = MOCK_SKETCHES_BY_PROJECT[projectId] || [
+        {
+          id: `sk-${projectId}-1`,
+          projectId,
+          title: 'General Arrangement & Spatial Layout Plan',
+          type: 'Upload',
+          version: 1,
+          category: 'Plan',
+          url: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1200',
+          uploadedBy: 'Lead Draftsman',
+          updatedAt: '2026-06-01'
+        }
+      ];
+      localStorage.setItem(`mock_sketches_${projectId}`, JSON.stringify(defaultSketches));
+      return defaultSketches;
     }
     const colRef = collection(db, 'projects', projectId, 'sketches');
     const snapshot = await getDocs(colRef);
@@ -671,7 +762,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const createProjectSketch = async (projectId: string, sketchData: any) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_sketches_${projectId}`);
-      const sketches = stored ? JSON.parse(stored) : [];
+      const sketches = safeJsonParse<any[]>(stored, []);
       const id = `mock-sketch-${Date.now()}`;
       const newSketch = { ...sketchData, id, projectId, createdAt: new Date(), updatedAt: new Date() };
       localStorage.setItem(`mock_sketches_${projectId}`, JSON.stringify([...sketches, newSketch]));
@@ -690,7 +781,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_sketches_${projectId}`);
       if (stored) {
-        const sketches = JSON.parse(stored).map((d: any) => 
+        const sketches = safeJsonParse<any[]>(stored, []).map((d: any) => 
           d.id === sketchId ? { ...d, ...data, updatedAt: new Date() } : d
         );
         localStorage.setItem(`mock_sketches_${projectId}`, JSON.stringify(sketches));
@@ -707,7 +798,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_sketches_${projectId}`);
       if (stored) {
-        const sketches = JSON.parse(stored).filter((d: any) => d.id !== sketchId);
+        const sketches = safeJsonParse<any[]>(stored, []).filter((d: any) => d.id !== sketchId);
         localStorage.setItem(`mock_sketches_${projectId}`, JSON.stringify(sketches));
       }
       return;
@@ -718,8 +809,39 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const fetchProjectAssets = async (projectId: string) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_assets_${projectId}`);
-      if (stored) return JSON.parse(stored);
-      return [];
+      if (stored) return safeJsonParse(stored, []);
+      const defaultAssets = MOCK_ASSETS_BY_PROJECT[projectId] || [
+        {
+          id: `ast-${projectId}-1`,
+          projectId,
+          name: 'Executive Ergonomic Swivel Chair',
+          folder: 'FF&E',
+          subCategory: 'Furniture',
+          type: 'image/jpeg',
+          url: 'https://images.unsplash.com/photo-1580481077195-738af74d47d4?auto=format&fit=crop&q=80&w=800',
+          size: 2400000,
+          version: 'v1.0',
+          notes: 'Full grain leather with aluminium swivel star base.',
+          createdAt: '2026-06-01',
+          updatedAt: '2026-06-01'
+        },
+        {
+          id: `ast-${projectId}-2`,
+          projectId,
+          name: 'Architectural 3D Interior Visualization',
+          folder: '3D View',
+          subCategory: '3D View',
+          type: 'image/jpeg',
+          url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200',
+          size: 4800000,
+          version: 'v2.0',
+          notes: 'Final rendered perspective for client review.',
+          createdAt: '2026-06-05',
+          updatedAt: '2026-06-05'
+        }
+      ];
+      localStorage.setItem(`mock_assets_${projectId}`, JSON.stringify(defaultAssets));
+      return defaultAssets;
     }
     const colRef = collection(db, 'projects', projectId, 'assets');
     const snapshot = await getDocs(colRef);
@@ -729,7 +851,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
   const createProjectAsset = async (projectId: string, assetData: any) => {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_assets_${projectId}`);
-      const assets = stored ? JSON.parse(stored) : [];
+      const assets = safeJsonParse<any[]>(stored, []);
       const id = `mock-asset-${Date.now()}`;
       const newAsset = { ...assetData, id, projectId, createdAt: new Date(), updatedAt: new Date() };
       localStorage.setItem(`mock_assets_${projectId}`, JSON.stringify([...assets, newAsset]));
@@ -748,7 +870,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_assets_${projectId}`);
       if (stored) {
-        const assets = JSON.parse(stored).map((a: any) => 
+        const assets = safeJsonParse<any[]>(stored, []).map((a: any) => 
           a.id === assetId ? { ...a, ...data, updatedAt: new Date() } : a
         );
         localStorage.setItem(`mock_assets_${projectId}`, JSON.stringify(assets));
@@ -765,7 +887,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
     if (user?.uid === 'mock-dev-user-id') {
       const stored = localStorage.getItem(`mock_assets_${projectId}`);
       if (stored) {
-        const assets = JSON.parse(stored).filter((a: any) => a.id !== assetId);
+        const assets = safeJsonParse<any[]>(stored, []).filter((a: any) => a.id !== assetId);
         localStorage.setItem(`mock_assets_${projectId}`, JSON.stringify(assets));
       }
       return;
@@ -826,7 +948,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
       fetchProjectMoodboards: async (projectId: string) => {
         if (user?.uid === 'mock-dev-user-id') {
           const stored = localStorage.getItem(`mock_moodboards_${projectId}`);
-          if (stored) return JSON.parse(stored);
+          if (stored) return safeJsonParse(stored, []);
           
           // Seed initial placeholder moodboards
           const seedBoards: Moodboard[] = [
@@ -939,7 +1061,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
       createProjectMoodboard: async (projectId: string, moodboardData: any) => {
         if (user?.uid === 'mock-dev-user-id') {
           const stored = localStorage.getItem(`mock_moodboards_${projectId}`);
-          const moodboards = stored ? JSON.parse(stored) : [];
+          const moodboards = safeJsonParse<any[]>(stored, []);
           const id = `mock-moodboard-${Date.now()}`;
           const newMoodboard = { ...moodboardData, id, projectId, createdAt: new Date(), updatedAt: new Date() };
           localStorage.setItem(`mock_moodboards_${projectId}`, JSON.stringify([...moodboards, newMoodboard]));
@@ -957,7 +1079,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         if (user?.uid === 'mock-dev-user-id') {
           const stored = localStorage.getItem(`mock_moodboards_${projectId}`);
           if (stored) {
-            const moodboards = JSON.parse(stored).map((m: any) => 
+            const moodboards = safeJsonParse<any[]>(stored, []).map((m: any) => 
               m.id === moodboardId ? { ...m, ...data, updatedAt: new Date() } : m
             );
             localStorage.setItem(`mock_moodboards_${projectId}`, JSON.stringify(moodboards));
@@ -973,7 +1095,7 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
         if (user?.uid === 'mock-dev-user-id') {
           const stored = localStorage.getItem(`mock_moodboards_${projectId}`);
           if (stored) {
-            const moodboards = JSON.parse(stored).filter((m: any) => m.id !== moodboardId);
+            const moodboards = safeJsonParse<any[]>(stored, []).filter((m: any) => m.id !== moodboardId);
             localStorage.setItem(`mock_moodboards_${projectId}`, JSON.stringify(moodboards));
           }
           return;
