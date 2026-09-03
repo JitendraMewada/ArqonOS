@@ -6,7 +6,9 @@ import {
   NestSavingsGoal, 
   NestVault, 
   NestRecurringRule,
-  NestReminderItem 
+  NestReminderItem,
+  NestReconciliationRecord,
+  NestMemberNudge
 } from './types';
 
 export const INITIAL_NEST_GROUP: NestGroup = {
@@ -646,6 +648,55 @@ export const INITIAL_NEST_REMINDERS: NestReminderItem[] = [
     assignedMemberName: 'Jitendra Mewada',
     completedAt: '2026-08-31',
     tags: ['Completed', 'Reconciled']
+  }
+];
+
+export const INITIAL_RECONCILIATION_HISTORY: NestReconciliationRecord[] = [
+  {
+    id: 'rec_audit_1',
+    date: '2026-08-31T20:30:00Z',
+    ledgerBalance: 124500,
+    actualBankBalance: 124500,
+    discrepancy: 0,
+    reconciledByMemberId: 'mem_1',
+    reconciledByMemberName: 'Jitendra Mewada',
+    status: 'matched',
+    notes: 'End of August monthly audit. All bank statements and UPI payments matched ledger 100%.'
+  },
+  {
+    id: 'rec_audit_2',
+    date: '2026-07-31T18:15:00Z',
+    ledgerBalance: 118200,
+    actualBankBalance: 114700,
+    discrepancy: -3500,
+    reconciledByMemberId: 'mem_1',
+    reconciledByMemberName: 'Jitendra Mewada',
+    status: 'adjusted',
+    notes: 'Discrepancy of ₹3,500 identified for unlogged cash vegetable purchases and laundry service.',
+    adjustmentTransactionId: 'tx_adj_july'
+  }
+];
+
+export const INITIAL_MEMBER_NUDGES: NestMemberNudge[] = [
+  {
+    id: 'nudge_1',
+    targetMemberId: 'mem_3',
+    targetMemberName: 'Aarav Mewada',
+    senderMemberName: 'Jitendra Mewada',
+    message: 'Hey Aarav, please log your college book and stationery expenses before weekend reconciliation!',
+    timestamp: '2026-09-01T14:30:00Z',
+    type: 'reminder_to_log',
+    isAcknowledged: false
+  },
+  {
+    id: 'nudge_2',
+    targetMemberId: 'mem_4',
+    targetMemberName: 'Ananya Mewada',
+    senderMemberName: 'Pooja Mewada',
+    message: 'Hi Ananya, remember to log your dance academy dress purchase receipt in the app.',
+    timestamp: '2026-08-30T10:00:00Z',
+    type: 'reminder_to_log',
+    isAcknowledged: true
   }
 ];
 

@@ -56,8 +56,10 @@ export function Gateway() {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-             <button 
-               onClick={() => window.open('https://essence.arqon.com', '_blank')}
+             <a 
+               href="https://essence.arqon.com"
+               target="_blank"
+               rel="noopener noreferrer"
                className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between group hover:border-[#94a3b866] transition-all shadow-sm"
              >
                 <div className="flex items-center gap-4">
@@ -70,10 +72,12 @@ export function Gateway() {
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#94a3b8] group-hover:translate-x-1 transition-all" />
-             </button>
+             </a>
              
-             <button 
-               onClick={() => window.open('https://pravara.arqon.com', '_blank')}
+             <a 
+               href="https://pravara.arqon.com"
+               target="_blank"
+               rel="noopener noreferrer"
                className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between group hover:border-[#d4af3766] transition-all shadow-sm"
              >
                 <div className="flex items-center gap-4">
@@ -86,7 +90,7 @@ export function Gateway() {
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#d4af37] group-hover:translate-x-1 transition-all" />
-             </button>
+             </a>
           </div>
        </div>
     </div>

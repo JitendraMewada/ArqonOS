@@ -21,7 +21,9 @@ import {
   Calendar, 
   DollarSign,
   BarChart3,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Send,
+  BellRing
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -36,7 +38,7 @@ import {
   Tooltip, 
   Legend 
 } from 'recharts';
-import { NestGroup, NestMember, MemberRole, GroupCategory } from '../types';
+import { NestGroup, NestMember, MemberRole, GroupCategory, NestMemberNudge } from '../types';
 import { PRICING_CONFIG } from '../../../../constants/pricing';
 import { cn } from '../../../../lib/utils';
 
@@ -45,17 +47,21 @@ const FAMILY_CHART_COLORS = ['#22c55e', '#3b82f6', '#a855f7', '#f59e0b', '#ec489
 interface NestFamilyProps {
   group: NestGroup;
   members: NestMember[];
+  nudges?: NestMemberNudge[];
   onUpdateMembers: (members: NestMember[]) => void;
   onUpdateGroup?: (group: NestGroup) => void;
   onDisburseAllowances?: () => void;
+  onOpenNudgeCenter?: (preselectedMemberId?: string) => void;
 }
 
 export function NestFamily({
   group,
   members,
+  nudges = [],
   onUpdateMembers,
   onUpdateGroup,
-  onDisburseAllowances
+  onDisburseAllowances,
+  onOpenNudgeCenter
 }: NestFamilyProps) {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showEditGroupModal, setShowEditGroupModal] = useState(false);
@@ -211,6 +217,17 @@ export function NestFamily({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          {onOpenNudgeCenter && (
+            <button
+              onClick={() => onOpenNudgeCenter()}
+              className="px-4 py-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-bold text-xs uppercase tracking-wider flex items-center gap-2 border border-purple-300 dark:border-purple-800 transition-all shadow-sm"
+              title="Open Member Logging Nudges & Accountability Hub"
+            >
+              <Send className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              Nudge Center {nudges.filter(n => !n.isAcknowledged).length > 0 && `(${nudges.filter(n => !n.isAcknowledged).length})`}
+            </button>
+          )}
+
           {onDisburseAllowances && totalMonthlyAllowances > 0 && (
             <button
               onClick={() => setShowDisburseModal(true)}
@@ -428,6 +445,15 @@ export function NestFamily({
               </div>
 
               <div className="flex items-center gap-1">
+                {onOpenNudgeCenter && (
+                  <button
+                    onClick={() => onOpenNudgeCenter(member.id)}
+                    className="p-1.5 text-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 rounded-lg transition-all"
+                    title={`Send logging nudge to ${member.name}`}
+                  >
+                    <BellRing className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => openEditMemberModal(member)}
                   className="p-1.5 text-slate-400 hover:text-[#22c55e] hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-all"

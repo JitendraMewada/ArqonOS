@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Box, Layers, Zap, Hexagon, Database, Shield, Workflow, Users, Truck, LineChart, Brain, History, Sparkles, Target, GitMerge, Activity, Cpu, Command, Globe, Calendar, MessageSquare, Milestone, ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -25,27 +25,37 @@ const modules = [
 
 export function LandingPage() {
   const [radius, setRadius] = useState(typeof window !== 'undefined' && window.innerWidth >= 768 ? 250 : 150);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleResize = () => {
-      setRadius(window.innerWidth >= 768 ? 250 : 150);
+      try {
+        setRadius(window.innerWidth >= 768 ? 250 : 150);
+      } catch (e) {}
     };
+    const handleScroll = () => {
+      try {
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (totalHeight > 0) {
+          setScrollProgress(Math.min(1, Math.max(0, window.scrollY / totalHeight)));
+        }
+      } catch (e) {}
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
     <div className="flex flex-col min-h-screen pt-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Scroll Progress Bar */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-[#3b82f6] origin-left z-[100]" 
-        style={{ scaleX }} 
+      <div 
+        className="fixed top-0 left-0 right-0 h-1 bg-[#3b82f6] origin-left z-[100] transition-transform duration-75 ease-out" 
+        style={{ transform: `scaleX(${scrollProgress})`, transformOrigin: 'left' }} 
       />
 
       {/* Hero Section */}

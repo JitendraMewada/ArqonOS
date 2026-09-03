@@ -218,26 +218,7 @@
     <!-- React/Vite Script Entry Point -->
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- ============================================== -->
-    <!-- Advanced Services & Registration (PWA)         -->
-    <!-- ============================================== -->
     <script>
-        // Advance Service Worker Registration for PWA functionality
-        // We delay this slightly to prioritize main app hydration on mobile
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => {
-                            console.log('ArqonOS ServiceWorker registration successful');
-                        })
-                        .catch(err => {
-                            console.warn('ArqonOS ServiceWorker registration failed: ', err);
-                        });
-                }, 2000);
-            });
-        }
-
         // Failsafe to remove loader if React fails to mount or hangs
         setTimeout(() => {
             const loader = document.querySelector('.app-loader');

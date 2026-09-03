@@ -20,7 +20,10 @@ import {
   Menu,
   Coins,
   Bell,
-  CheckSquare
+  CheckSquare,
+  Scale,
+  Send,
+  History
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
@@ -33,7 +36,9 @@ import {
   NestSavingsGoal, 
   NestVault,
   NestRecurringRule,
-  NestReminderItem 
+  NestReminderItem,
+  NestReconciliationRecord,
+  NestMemberNudge 
 } from './types';
 import { 
   INITIAL_NEST_GROUP, 
@@ -43,7 +48,9 @@ import {
   INITIAL_NEST_SAVINGS, 
   INITIAL_NEST_VAULTS,
   INITIAL_NEST_RECURRING_RULES,
-  INITIAL_NEST_REMINDERS
+  INITIAL_NEST_REMINDERS,
+  INITIAL_RECONCILIATION_HISTORY,
+  INITIAL_MEMBER_NUDGES
 } from './mockNestData';
 
 // Subcomponents
@@ -53,10 +60,13 @@ import { NestBudgets } from './components/NestBudgets';
 import { NestSavings } from './components/NestSavings';
 import { NestFamily } from './components/NestFamily';
 import { NestAnalytics } from './components/NestAnalytics';
+import { NestTimelineHistory } from './components/NestTimelineHistory';
 import { NestReminders } from './components/NestReminders';
 import { NestHelp } from './components/NestHelp';
 import { AddTransactionModal } from './components/AddTransactionModal';
 import { NestRecurringModal } from './components/NestRecurringModal';
+import { NestReconciliationModal } from './components/NestReconciliationModal';
+import { NestMemberNudgeModal } from './components/NestMemberNudgeModal';
 
 export function NestDashboard() {
   const [activeApp, setActiveApp] = useState<string>('overview');
@@ -73,6 +83,13 @@ export function NestDashboard() {
   const [vaults, setVaults] = useState<NestVault[]>(INITIAL_NEST_VAULTS);
   const [recurringRules, setRecurringRules] = useState<NestRecurringRule[]>(INITIAL_NEST_RECURRING_RULES);
   const [reminders, setReminders] = useState<NestReminderItem[]>(INITIAL_NEST_REMINDERS);
+
+  // Proactive Safety Net State (Reconciliation & Nudges)
+  const [reconciliationHistory, setReconciliationHistory] = useState<NestReconciliationRecord[]>(INITIAL_RECONCILIATION_HISTORY);
+  const [isReconciliationOpen, setIsReconciliationOpen] = useState(false);
+  const [nudges, setNudges] = useState<NestMemberNudge[]>(INITIAL_MEMBER_NUDGES);
+  const [isNudgeModalOpen, setIsNudgeModalOpen] = useState(false);
+  const [nudgePreselectedMemberId, setNudgePreselectedMemberId] = useState<string | undefined>(undefined);
 
   const [isAddTxOpen, setIsAddTxOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<NestTransaction | null>(null);
@@ -361,6 +378,44 @@ export function NestDashboard() {
     }
   };
 
+  // Proactive Safety Net Handlers (Reconciliation & Nudges)
+  const handleApplyAdjustmentTransaction = (tx: NestTransaction) => {
+    setTransactions(prev => [tx, ...prev]);
+    if (tx.type === 'expense') {
+      setBudgets(prevBudgets => prevBudgets.map(b => {
+        if (b.category === tx.category) {
+          return { ...b, currentSpent: b.currentSpent + Math.abs(tx.amount) };
+        }
+        return b;
+      }));
+    }
+  };
+
+  const handleSaveAuditRecord = (record: NestReconciliationRecord) => {
+    setReconciliationHistory(prev => [record, ...prev]);
+  };
+
+  const handleSendNudge = (nudge: NestMemberNudge) => {
+    setNudges(prev => [nudge, ...prev]);
+  };
+
+  const handleAcknowledgeNudge = (nudgeId: string) => {
+    setNudges(prev => prev.map(n => n.id === nudgeId ? { ...n, isAcknowledged: true } : n));
+  };
+
+  const handleDeleteNudge = (nudgeId: string) => {
+    setNudges(prev => prev.filter(n => n.id !== nudgeId));
+  };
+
+  const handleOpenNudgeCenterWithMember = (memberId?: unknown) => {
+    if (typeof memberId === 'string') {
+      setNudgePreselectedMemberId(memberId);
+    } else {
+      setNudgePreselectedMemberId(undefined);
+    }
+    setIsNudgeModalOpen(true);
+  };
+
   // Reminder & Checklist Handlers
   const handleAddReminder = (reminder: NestReminderItem) => {
     setReminders(prev => [reminder, ...prev]);
@@ -416,6 +471,7 @@ export function NestDashboard() {
   const nestApps = [
     { id: 'overview', name: 'Dashboard Overview', icon: Layers },
     { id: 'expenses', name: 'Expenses & Ledger', icon: Receipt },
+    { id: 'timeline', name: 'Timeline & History', icon: History },
     { id: 'reminders', name: 'Reminders & Tasks', icon: Bell, badge: urgentRemindersCount > 0 ? urgentRemindersCount : undefined },
     { id: 'budgets', name: 'Category Budgets', icon: Wallet },
     { id: 'savings', name: 'Savings & Vaults', icon: PiggyBank },
@@ -610,8 +666,12 @@ export function NestDashboard() {
                      budgets={budgets}
                      savings={savings}
                      reminders={reminders}
+                     reconciliationHistory={reconciliationHistory}
+                     nudges={nudges}
                      onToggleCompleteReminder={handleToggleCompleteReminder}
                      onAddTransaction={handleOpenAddTransaction}
+                     onOpenReconciliation={() => setIsReconciliationOpen(true)}
+                     onOpenNudgeCenter={handleOpenNudgeCenterWithMember}
                      onNavigateTab={(tab) => setActiveApp(tab)}
                    />
                  )}
@@ -631,6 +691,7 @@ export function NestDashboard() {
                      onToggleRecurringActive={handleToggleRecurringRule}
                      onExecuteRecurringRule={handleExecuteRecurringRule}
                      onExecuteAllDueRecurring={handleExecuteAllDueRecurring}
+                     onOpenReconciliation={() => setIsReconciliationOpen(true)}
                    />
                  )}
 
@@ -674,9 +735,11 @@ export function NestDashboard() {
                    <NestFamily
                      group={group}
                      members={members}
+                     nudges={nudges}
                      onUpdateMembers={setMembers}
                      onUpdateGroup={setGroup}
                      onDisburseAllowances={handleDisburseAllowances}
+                     onOpenNudgeCenter={handleOpenNudgeCenterWithMember}
                    />
                  )}
 
@@ -691,6 +754,20 @@ export function NestDashboard() {
 
                  {activeApp === 'help' && (
                    <NestHelp />
+                  )}
+
+                  {activeApp === 'timeline' && (
+                    <NestTimelineHistory
+                      group={group}
+                      members={members}
+                      transactions={transactions}
+                      budgets={budgets}
+                      savings={savings}
+                      vaults={vaults}
+                      recurringRules={recurringRules}
+                      onAddTransaction={() => handleOpenAddTransaction()}
+                      onOpenReconciliation={() => setIsReconciliationOpen(true)}
+                    />
                  )}
               </div>
           </div>
@@ -722,6 +799,35 @@ export function NestDashboard() {
          vaults={vaults}
          rule={editingRecurringRule}
          onSaveRule={handleSaveRecurringRule}
+       />
+
+       {/* Proactive Safety Net: Bank & Balance Reconciliation Modal */}
+       <NestReconciliationModal
+         isOpen={isReconciliationOpen}
+         onClose={() => setIsReconciliationOpen(false)}
+         group={group}
+         members={members}
+         transactions={transactions}
+         reconciliationHistory={reconciliationHistory}
+         onApplyAdjustmentTransaction={handleApplyAdjustmentTransaction}
+         onSaveAuditRecord={handleSaveAuditRecord}
+       />
+
+       {/* Proactive Safety Net: Member Nudge Center Modal */}
+       <NestMemberNudgeModal
+         isOpen={isNudgeModalOpen}
+         onClose={() => {
+           setIsNudgeModalOpen(false);
+           setNudgePreselectedMemberId(undefined);
+         }}
+         group={group}
+         members={members}
+         transactions={transactions}
+         nudges={nudges}
+         preselectedMemberId={nudgePreselectedMemberId}
+         onSendNudge={handleSendNudge}
+         onAcknowledgeNudge={handleAcknowledgeNudge}
+         onDeleteNudge={handleDeleteNudge}
        />
 
     </div>

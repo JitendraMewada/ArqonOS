@@ -143,6 +143,30 @@ export type NestReminderStatus = 'pending' | 'completed' | 'snoozed' | 'dismisse
 
 export type NestReminderPriority = 'urgent' | 'high' | 'medium' | 'low';
 
+export interface NestReconciliationRecord {
+  id: string;
+  date: string;
+  ledgerBalance: number;
+  actualBankBalance: number;
+  discrepancy: number; // actualBankBalance - ledgerBalance
+  reconciledByMemberId: string;
+  reconciledByMemberName: string;
+  status: 'matched' | 'adjusted' | 'pending_investigation';
+  notes?: string;
+  adjustmentTransactionId?: string;
+}
+
+export interface NestMemberNudge {
+  id: string;
+  targetMemberId: string;
+  targetMemberName: string;
+  senderMemberName: string;
+  message: string;
+  timestamp: string;
+  type: 'reminder_to_log' | 'bill_split' | 'allowance_check' | 'general';
+  isAcknowledged?: boolean;
+}
+
 export interface NestReminderItem {
   id: string;
   title: string;

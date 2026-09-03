@@ -24,7 +24,9 @@ import {
   Sparkles,
   BarChart3,
   TrendingUp,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Scale,
+  RefreshCw
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -60,6 +62,7 @@ interface NestExpensesProps {
   onToggleRecurringActive: (id: string) => void;
   onExecuteRecurringRule: (rule: NestRecurringRule) => void;
   onExecuteAllDueRecurring: () => void;
+  onOpenReconciliation?: () => void;
 }
 
 export function NestExpenses({
@@ -75,7 +78,8 @@ export function NestExpenses({
   onDeleteRecurringRule,
   onToggleRecurringActive,
   onExecuteRecurringRule,
-  onExecuteAllDueRecurring
+  onExecuteAllDueRecurring,
+  onOpenReconciliation
 }: NestExpensesProps) {
   const [activeSubTab, setActiveSubTab] = useState<'ledger' | 'recurring'>('ledger');
   const [searchQuery, setSearchQuery] = useState('');
@@ -275,17 +279,29 @@ export function NestExpenses({
           </div>
 
           {activeSubTab === 'ledger' ? (
-            <button
-              onClick={onAddTransaction}
-              className="px-4 py-2 rounded-xl bg-[#22c55e] hover:bg-[#1ea34d] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-[#22c55e]/20 transition-all"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Transaction
-            </button>
+            <div className="flex items-center gap-2">
+              {onOpenReconciliation && (
+                <button
+                  onClick={() => onOpenReconciliation()}
+                  className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-all shadow-sm"
+                  title="Audit and match ledger against real bank/UPI balance"
+                >
+                  <Scale className="w-3.5 h-3.5 text-[#22c55e]" />
+                  <span>Audit / Reconcile</span>
+                </button>
+              )}
+              <button
+                onClick={() => onAddTransaction()}
+                className="px-4 py-2 rounded-xl bg-[#22c55e] hover:bg-[#1ea34d] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-[#22c55e]/20 transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add Transaction
+              </button>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={onExecuteAllDueRecurring}
+                onClick={() => onExecuteAllDueRecurring?.()}
                 className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 border border-slate-700 transition-all shadow-sm"
                 title="Post all active recurring items due today into ledger"
               >
@@ -293,7 +309,7 @@ export function NestExpenses({
                 Process Due Today
               </button>
               <button
-                onClick={onAddRecurringRule}
+                onClick={() => onAddRecurringRule?.()}
                 className="px-4 py-2 rounded-xl bg-[#22c55e] hover:bg-[#1ea34d] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md shadow-[#22c55e]/20 transition-all"
               >
                 <PlusCircle className="w-4 h-4" />

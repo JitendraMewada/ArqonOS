@@ -46,9 +46,12 @@ import {
   NestTransaction, 
   NestBudget, 
   NestSavingsGoal,
-  NestReminderItem 
+  NestReminderItem,
+  NestReconciliationRecord,
+  NestMemberNudge
 } from '../types';
 import { cn } from '../../../../lib/utils';
+import { Scale, CheckCheck, RefreshCw, Send, ShieldAlert, Sparkle } from 'lucide-react';
 
 interface NestOverviewProps {
   group: NestGroup;
@@ -57,9 +60,13 @@ interface NestOverviewProps {
   budgets: NestBudget[];
   savings: NestSavingsGoal[];
   reminders?: NestReminderItem[];
+  reconciliationHistory?: NestReconciliationRecord[];
+  nudges?: NestMemberNudge[];
   onToggleCompleteReminder?: (id: string) => void;
   onAddTransaction: () => void;
   onNavigateTab: (tabId: string) => void;
+  onOpenReconciliation?: () => void;
+  onOpenNudgeCenter?: () => void;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -82,13 +89,28 @@ export function NestOverview({
   budgets,
   savings,
   reminders = [],
+  reconciliationHistory = [],
+  nudges = [],
   onToggleCompleteReminder,
   onAddTransaction,
-  onNavigateTab
+  onNavigateTab,
+  onOpenReconciliation,
+  onOpenNudgeCenter
 }: NestOverviewProps) {
   const [chartView, setChartView] = useState<'cashflow' | 'budget_compare'>('cashflow');
 
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  // Compute unacknowledged nudges
+  const pendingNudgesCount = useMemo(() => {
+    return nudges.filter(n => !n.isAcknowledged).length;
+  }, [nudges]);
+
+  // Last reconciliation summary
+  const latestReconciliation = useMemo(() => {
+    if (!reconciliationHistory || reconciliationHistory.length === 0) return null;
+    return reconciliationHistory[0];
+  }, [reconciliationHistory]);
 
   // Upcoming Checklist & Reminders processing
   const topUpcomingReminders = useMemo(() => {
@@ -235,7 +257,15 @@ export function NestOverview({
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={onAddTransaction}
+              onClick={() => onOpenReconciliation?.()}
+              className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs uppercase tracking-wider border border-slate-700 hover:border-emerald-500/40 transition-colors flex items-center gap-2 shadow-sm"
+              title="Audit & Match Ledger with Bank Statement"
+            >
+              <Scale className="w-4 h-4 text-[#22c55e]" />
+              Audit / Bank Match
+            </button>
+            <button
+              onClick={() => onAddTransaction()}
               className="px-5 py-3 rounded-xl bg-[#22c55e] hover:bg-[#1ea34d] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#22c55e]/20 hover:-translate-y-0.5 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
@@ -567,6 +597,70 @@ export function NestOverview({
 
       </div>
 
+      {/* Safety Net: Audit, Bank Reconciliation & Missed Entries Protection */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 dark:from-slate-900 dark:to-slate-950 p-5 rounded-2xl border border-emerald-500/20 shadow-md text-white">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 flex items-center justify-center text-[#22c55e] shrink-0">
+              <Scale className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-sm font-black uppercase tracking-wider text-white">
+                  Balance Audit & Safety Net
+                </h2>
+                {latestReconciliation ? (
+                  <span className={cn(
+                    "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border",
+                    latestReconciliation.status === 'matched' 
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                      : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                  )}>
+                    {latestReconciliation.status === 'matched' ? '✓ 100% Balanced' : '⚠️ Adjusted with Discrepancy Cushion'}
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                    Ready for First Audit
+                  </span>
+                )}
+                {pendingNudgesCount > 0 && (
+                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-purple-500/20 text-purple-300 border border-purple-500/30 animate-pulse flex items-center gap-1">
+                    <Send className="w-2.5 h-2.5" />
+                    {pendingNudgesCount} Member Nudge Active
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-300 mt-1">
+                {latestReconciliation 
+                  ? `Last verified on ${new Date(latestReconciliation.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} by ${latestReconciliation.reconciledByMemberName.split(' ')[0]}. Prevents unlogged cash receipts from skewing your family budget.`
+                  : 'Compare your real bank account or UPI balance against the Arqon Nest ledger to automatically catch missed expenses, unlogged incomes, and forgotten deposits.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto shrink-0">
+            {onOpenNudgeCenter && (
+              <button
+                onClick={() => onOpenNudgeCenter()}
+                className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Send className="w-3.5 h-3.5 text-purple-400" />
+                <span>Nudge Members</span>
+              </button>
+            )}
+            {onOpenReconciliation && (
+              <button
+                onClick={() => onOpenReconciliation()}
+                className="px-4 py-2 rounded-xl bg-[#22c55e] hover:bg-[#1ea34d] text-white font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#22c55e]/20 hover:-translate-y-0.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Run Reconciliation Audit</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Upcoming Financial Checklist & Active Dues Alert Banner */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -683,12 +777,20 @@ export function NestOverview({
                 Live Transaction Activity
               </h2>
             </div>
-            <button
-              onClick={() => onNavigateTab('expenses')}
-              className="text-xs font-bold text-[#22c55e] hover:underline flex items-center gap-1"
-            >
-              View Full Ledger <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onNavigateTab('timeline')}
+                className="text-xs font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center gap-1"
+              >
+                Timeline View
+              </button>
+              <button
+                onClick={() => onNavigateTab('expenses')}
+                className="text-xs font-bold text-[#22c55e] hover:underline flex items-center gap-1"
+              >
+                Full Ledger <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100 dark:divide-slate-800">

@@ -351,15 +351,17 @@ export function ModuleShowcase() {
               <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-100 dark:border-slate-800">
                 {(moduleId === 'essence' || moduleId === 'pravara') ? (
                   <>
-                    <button 
-                      onClick={() => window.open('https://essence.arqon.com', '_blank')}
-                      className={cn("px-8 py-4 text-white font-bold rounded-md text-center transition-all shadow-lg cursor-pointer", colorClasses.btnBg)}
+                    <a 
+                      href={moduleId === 'essence' ? 'https://essence.arqon.com' : 'https://pravara.arqon.com'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn("px-8 py-4 text-white font-bold rounded-md text-center transition-all shadow-lg cursor-pointer inline-block", colorClasses.btnBg)}
                     >
                       Go to Web
-                    </button>
+                    </a>
                     <Link 
                       to="/gateway" 
-                      className="px-8 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-md text-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                      className="px-8 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-md text-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors inline-block"
                     >
                       Enter Workspace
                     </Link>

@@ -17,7 +17,7 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean,
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[ArqonOS] React Crash:', error, errorInfo);
   }
 
