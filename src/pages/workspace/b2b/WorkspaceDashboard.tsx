@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Layers,
   Box,
@@ -254,6 +254,16 @@ export function WorkspaceDashboard() {
     setActiveAppPage((prev) => ({ ...prev, [normalizedAppId]: pageName }));
     setIsSidebarMobileOpen(false);
   };
+
+  useEffect(() => {
+    const handleNav = (e: any) => {
+      if (e.detail?.appId) {
+        navigateToApp(e.detail.appId, e.detail.page || 'Overview');
+      }
+    };
+    window.addEventListener('arqon_navigate_app', handleNav);
+    return () => window.removeEventListener('arqon_navigate_app', handleNav);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex flex-col lg:flex-row p-4 gap-4 font-sans lg:h-screen lg:overflow-hidden relative transition-colors duration-300">

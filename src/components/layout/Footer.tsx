@@ -91,10 +91,16 @@ export function Footer() {
                     <h4 className="text-slate-900 dark:text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-2 opacity-50">Workspace</h4>
                     <div className="flex flex-col gap-3">
                       {b2bApps.map(app => (
-                        <Link key={app.id} to="/gateway" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors">
+                        <button 
+                          key={app.id} 
+                          onClick={() => {
+                            window.location.href = `/modules/${app.id}`;
+                          }}
+                          className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0"
+                        >
                           <app.icon className="w-3 h-3 group-hover:scale-110 transition-transform" style={{ color: app.color }} />
                           <span>{app.name}</span>
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -102,78 +108,78 @@ export function Footer() {
                   <div className="flex flex-col gap-4">
                     <h4 className="text-slate-900 dark:text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-2 opacity-50">Ecosystem</h4>
                     <div className="flex flex-col gap-3">
-                      <Link to="/modules/nest" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#22c55e] text-xs font-bold transition-colors">
+                      <button onClick={() => window.location.href = '/modules/nest'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#22c55e] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Shield className="w-3 h-3 text-[#22c55e]" />
                         <span>Nest (B2C)</span>
-                      </Link>
-                      <Link to="/modules/essence" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/modules/essence'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Layers className="w-3 h-3 text-slate-400" />
                         <span>Essence (D2C)</span>
-                      </Link>
-                      <Link to="/modules/pravara" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#d4af37] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/modules/pravara'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#d4af37] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Zap className="w-3 h-3 text-[#d4af37]" />
                         <span>PRAVARA (D2C)</span>
-                      </Link>
-                      <Link to="/modules/arqonos" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/modules/arqonos'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Box className="w-3 h-3 text-[#3b82f6]" />
                         <span>ArqonOS Suite</span>
-                      </Link>
-                      <Link to="/gateway" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/gateway'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Rocket className="w-3 h-3 text-slate-400" />
                         <span>Enterprise Plan</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-4">
                     <h4 className="text-slate-900 dark:text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-2 opacity-50">Company</h4>
                     <div className="flex flex-col gap-3">
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Info className="w-3 h-3 text-slate-400" />
                         <span>Foundation</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <History className="w-3 h-3 text-slate-400" />
                         <span>Revelation</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Target className="w-3 h-3 text-slate-400" />
                         <span>Investment</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Users className="w-3 h-3 text-slate-400" />
                         <span>Career Hub</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Globe className="w-3 h-3 text-slate-400" />
                         <span>Media Kit</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-4">
                     <h4 className="text-slate-900 dark:text-white font-bold text-[10px] uppercase tracking-[0.3em] mb-2 opacity-50">Resources</h4>
                     <div className="flex flex-col gap-3">
-                      <Link to="/pricing" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      <button onClick={() => window.location.href = '/pricing'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <CreditCard className="w-3 h-3 text-slate-400" />
                         <span>Pricing</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <BookOpen className="w-3 h-3 text-slate-400" />
                         <span>Documentation</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Code className="w-3 h-3 text-slate-400" />
                         <span>API Docs</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <Activity className="w-3 h-3 text-slate-400" />
                         <span>Status Core</span>
-                      </Link>
-                      <Link to="/" className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors">
+                      </button>
+                      <button onClick={() => window.location.href = '/'} className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] text-xs font-bold transition-colors text-left bg-transparent border-none cursor-pointer p-0">
                         <HelpCircle className="w-3 h-3 text-slate-400" />
                         <span>Help Center</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
 

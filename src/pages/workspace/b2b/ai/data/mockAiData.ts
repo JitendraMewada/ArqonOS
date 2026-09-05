@@ -145,363 +145,63 @@ export interface AiNeuralCoreMetric {
 // Mock Projects Data
 export const initialAiProjects: ProjectAiData[] = [
   {
-    id: 'proj-01',
-    code: 'PRJ-VSP-01',
-    name: 'Villa Serene Penthouse',
-    clientName: 'Rahul & Meera Singhania',
+    id: 'proj-goldmine',
+    code: 'demo-arq-001',
+    name: 'Demo Project',
+    clientName: 'Demo Client',
     type: 'Luxury Residential',
-    areaSqFt: 6200,
-    startDate: '2026-01-15',
-    targetEndDate: '2026-09-30',
-    forecastedEndDate: '2026-09-24',
+    areaSqFt: 1794,
+    startDate: '2026-05-01',
+    targetEndDate: '2026-11-30',
+    forecastedEndDate: '2026-11-20',
     status: 'Site Execution',
-    completionPercentage: 68,
-    healthScore: 94,
+    completionPercentage: 65,
+    healthScore: 95,
     engineFeeds: {
       studio: {
         spacesCount: 8,
-        approvedDrawings: 24,
-        pendingRevisions: 1,
-        boqGenerated: true,
-        materialPaletteStatus: 'Locked',
-        lastModelSync: '10 mins ago'
-      },
-      cost: {
-        budget: 18500000,
-        actualSpend: 11800000,
-        committedPO: 4200000,
-        projectedVariance: 480000,
-        marginHealth: 29.5,
-        unapprovedVariationClaims: 0
-      },
-      flow: {
-        activeWorkflows: 6,
-        criticalPathTasks: 14,
-        stageDelayRisk: 'Low',
-        spiIndex: 1.08,
-        completedMilestones: 12,
-        totalMilestones: 16
-      },
-      quest: {
-        openTasks: 18,
-        overdueTasks: 0,
-        blockersReported: 0,
-        dailyChatActivity: 42,
-        upcomingDeadlines7Days: 5
-      },
-      vendor: {
-        activeVendors: 9,
-        onTimeDeliveryRate: 98.2,
-        flaggedRateDiscrepancies: 0,
-        openPurchaseOrders: 4,
-        portClearancePending: 0
-      },
-      people: {
-        assignedStaff: 8,
-        utilizationRate: 88,
-        burnoutRiskTeam: null,
-        leadDesigner: 'Ananya Roy',
-        siteManager: 'Vikram Joshi'
-      },
-      connect: {
-        clientSentimentScore: 96,
-        changeRequestsPending: 0,
-        approvalTurnaroundHours: 3.5,
-        paymentDueDays: 0
-      }
-    },
-    aiForecast: {
-      predictedDelayDays: -6, // 6 days ahead
-      confidenceScore: 96.2,
-      predictedBudgetVariance: 480000,
-      marginRiskFactor: 'Safe',
-      topPredictedRisk: 'Custom Italian Statuario marble delivery port inspection buffer (12 days reserved).',
-      valueEngineeringPotential: 340000
-    }
-  },
-  {
-    id: 'proj-02',
-    code: 'PRJ-GHE-02',
-    name: 'The Grand Heritage Estate',
-    clientName: 'Dr. Vikramaditya Oberoi',
-    type: 'Heritage Villa',
-    areaSqFt: 14500,
-    startDate: '2025-11-01',
-    targetEndDate: '2026-11-15',
-    forecastedEndDate: '2026-11-28',
-    status: 'Site Execution',
-    completionPercentage: 45,
-    healthScore: 78,
-    engineFeeds: {
-      studio: {
-        spacesCount: 18,
-        approvedDrawings: 46,
-        pendingRevisions: 4,
-        boqGenerated: true,
-        materialPaletteStatus: 'Review Required',
-        lastModelSync: '3 mins ago'
-      },
-      cost: {
-        budget: 42000000,
-        actualSpend: 19800000,
-        committedPO: 12500000,
-        projectedVariance: -950000,
-        marginHealth: 23.8,
-        unapprovedVariationClaims: 2
-      },
-      flow: {
-        activeWorkflows: 11,
-        criticalPathTasks: 28,
-        stageDelayRisk: 'Medium',
-        spiIndex: 0.94,
-        completedMilestones: 9,
-        totalMilestones: 22
-      },
-      quest: {
-        openTasks: 42,
-        overdueTasks: 3,
-        blockersReported: 2,
-        dailyChatActivity: 85,
-        upcomingDeadlines7Days: 12
-      },
-      vendor: {
-        activeVendors: 16,
-        onTimeDeliveryRate: 86.4,
-        flaggedRateDiscrepancies: 3,
-        openPurchaseOrders: 8,
-        portClearancePending: 1
-      },
-      people: {
-        assignedStaff: 14,
-        utilizationRate: 94,
-        burnoutRiskTeam: 'Drafting & 3D Team (98% load)',
-        leadDesigner: 'Farhan Zaidi',
-        siteManager: 'Gurpreet Singh'
-      },
-      connect: {
-        clientSentimentScore: 84,
-        changeRequestsPending: 2,
-        approvalTurnaroundHours: 18.2,
-        paymentDueDays: 4
-      }
-    },
-    aiForecast: {
-      predictedDelayDays: 13,
-      confidenceScore: 89.4,
-      predictedBudgetVariance: -950000,
-      marginRiskFactor: 'Moderate Risk',
-      topPredictedRisk: 'Handcrafted Burma Teak archway carving cycle lagging planned weekly burndown.',
-      valueEngineeringPotential: 1250000
-    }
-  },
-  {
-    id: 'proj-03',
-    code: 'PRJ-ABW-03',
-    name: 'Azure Bay Waterfront Villa',
-    clientName: 'Priya & Siddharth Varma',
-    type: 'Luxury Residential',
-    areaSqFt: 8800,
-    startDate: '2026-02-10',
-    targetEndDate: '2026-10-30',
-    forecastedEndDate: '2026-10-25',
-    status: 'Site Execution',
-    completionPercentage: 54,
-    healthScore: 91,
-    engineFeeds: {
-      studio: {
-        spacesCount: 11,
-        approvedDrawings: 32,
-        pendingRevisions: 0,
-        boqGenerated: true,
-        materialPaletteStatus: 'Locked',
-        lastModelSync: '25 mins ago'
-      },
-      cost: {
-        budget: 27000000,
-        actualSpend: 14200000,
-        committedPO: 7800000,
-        projectedVariance: 620000,
-        marginHealth: 28.1,
-        unapprovedVariationClaims: 0
-      },
-      flow: {
-        activeWorkflows: 8,
-        criticalPathTasks: 19,
-        stageDelayRisk: 'Low',
-        spiIndex: 1.04,
-        completedMilestones: 10,
-        totalMilestones: 18
-      },
-      quest: {
-        openTasks: 24,
-        overdueTasks: 1,
-        blockersReported: 0,
-        dailyChatActivity: 56,
-        upcomingDeadlines7Days: 7
-      },
-      vendor: {
-        activeVendors: 12,
-        onTimeDeliveryRate: 94.8,
-        flaggedRateDiscrepancies: 0,
-        openPurchaseOrders: 5,
-        portClearancePending: 0
-      },
-      people: {
-        assignedStaff: 9,
-        utilizationRate: 85,
-        burnoutRiskTeam: null,
-        leadDesigner: 'Mira Nair',
-        siteManager: 'Pradeep Patel'
-      },
-      connect: {
-        clientSentimentScore: 92,
-        changeRequestsPending: 0,
-        approvalTurnaroundHours: 6.0,
-        paymentDueDays: 0
-      }
-    },
-    aiForecast: {
-      predictedDelayDays: -5,
-      confidenceScore: 94.7,
-      predictedBudgetVariance: 620000,
-      marginRiskFactor: 'Safe',
-      topPredictedRisk: 'Acoustic glass envelope installation synchronization during monsoon high humidity window.',
-      valueEngineeringPotential: 480000
-    }
-  },
-  {
-    id: 'proj-04',
-    code: 'PRJ-ASC-04',
-    name: 'Apex Sky Corporate HQ',
-    clientName: 'Nesta FinTech Corp',
-    type: 'Commercial Office',
-    areaSqFt: 28000,
-    startDate: '2026-03-01',
-    targetEndDate: '2026-08-30',
-    forecastedEndDate: '2026-09-08',
-    status: 'Site Execution',
-    completionPercentage: 62,
-    healthScore: 83,
-    engineFeeds: {
-      studio: {
-        spacesCount: 26,
-        approvedDrawings: 78,
-        pendingRevisions: 2,
-        boqGenerated: true,
-        materialPaletteStatus: 'Locked',
-        lastModelSync: '1 hour ago'
-      },
-      cost: {
-        budget: 65000000,
-        actualSpend: 39500000,
-        committedPO: 18200000,
-        projectedVariance: -1400000,
-        marginHealth: 21.4,
-        unapprovedVariationClaims: 3
-      },
-      flow: {
-        activeWorkflows: 15,
-        criticalPathTasks: 36,
-        stageDelayRisk: 'Medium',
-        spiIndex: 0.96,
-        completedMilestones: 16,
-        totalMilestones: 26
-      },
-      quest: {
-        openTasks: 58,
-        overdueTasks: 4,
-        blockersReported: 1,
-        dailyChatActivity: 110,
-        upcomingDeadlines7Days: 16
-      },
-      vendor: {
-        activeVendors: 22,
-        onTimeDeliveryRate: 91.0,
-        flaggedRateDiscrepancies: 2,
-        openPurchaseOrders: 11,
-        portClearancePending: 0
-      },
-      people: {
-        assignedStaff: 18,
-        utilizationRate: 92,
-        burnoutRiskTeam: null,
-        leadDesigner: 'Devendra Rao',
-        siteManager: 'Manoj Kumar'
-      },
-      connect: {
-        clientSentimentScore: 88,
-        changeRequestsPending: 1,
-        approvalTurnaroundHours: 12.0,
-        paymentDueDays: 7
-      }
-    },
-    aiForecast: {
-      predictedDelayDays: 9,
-      confidenceScore: 90.8,
-      predictedBudgetVariance: -1400000,
-      marginRiskFactor: 'Moderate Risk',
-      topPredictedRisk: 'HVAC chilled-water line pressure testing delay blocking false ceiling 2nd fix on 5th floor.',
-      valueEngineeringPotential: 2100000
-    }
-  },
-  {
-    id: 'proj-05',
-    code: 'PRJ-AWS-05',
-    name: 'Aura Wellness Sanctuary',
-    clientName: 'Dr. Alisha Merchant',
-    type: 'Hospitality',
-    areaSqFt: 11200,
-    startDate: '2026-04-15',
-    targetEndDate: '2026-12-20',
-    forecastedEndDate: '2026-12-15',
-    status: 'Design Phase',
-    completionPercentage: 28,
-    healthScore: 96,
-    engineFeeds: {
-      studio: {
-        spacesCount: 14,
-        approvedDrawings: 18,
+        approvedDrawings: 28,
         pendingRevisions: 0,
         boqGenerated: true,
         materialPaletteStatus: 'Locked',
         lastModelSync: '5 mins ago'
       },
       cost: {
-        budget: 34000000,
-        actualSpend: 8200000,
-        committedPO: 14500000,
-        projectedVariance: 850000,
-        marginHealth: 31.2,
+        budget: 9785823,
+        actualSpend: 4892911,
+        committedPO: 2800000,
+        projectedVariance: 535823,
+        marginHealth: 32.5,
         unapprovedVariationClaims: 0
       },
       flow: {
-        activeWorkflows: 7,
-        criticalPathTasks: 12,
+        activeWorkflows: 4,
+        criticalPathTasks: 8,
         stageDelayRisk: 'Low',
-        spiIndex: 1.12,
-        completedMilestones: 5,
-        totalMilestones: 20
+        spiIndex: 1.05,
+        completedMilestones: 6,
+        totalMilestones: 10
       },
       quest: {
-        openTasks: 16,
+        openTasks: 18,
         overdueTasks: 0,
         blockersReported: 0,
-        dailyChatActivity: 38,
+        dailyChatActivity: 36,
         upcomingDeadlines7Days: 4
       },
       vendor: {
-        activeVendors: 10,
+        activeVendors: 6,
         onTimeDeliveryRate: 97.5,
         flaggedRateDiscrepancies: 0,
-        openPurchaseOrders: 6,
+        openPurchaseOrders: 3,
         portClearancePending: 0
       },
       people: {
-        assignedStaff: 7,
-        utilizationRate: 78,
+        assignedStaff: 8,
+        utilizationRate: 91,
         burnoutRiskTeam: null,
-        leadDesigner: 'Tanvi Shah',
-        siteManager: 'Rajesh Verma'
+        leadDesigner: 'Jitendra Mewada',
+        siteManager: 'Vikram Mehta'
       },
       connect: {
         clientSentimentScore: 98,
@@ -511,12 +211,12 @@ export const initialAiProjects: ProjectAiData[] = [
       }
     },
     aiForecast: {
-      predictedDelayDays: -5,
-      confidenceScore: 97.5,
-      predictedBudgetVariance: 850000,
+      predictedDelayDays: -10, // 10 days ahead
+      confidenceScore: 96.5,
+      predictedBudgetVariance: 535823,
       marginRiskFactor: 'Safe',
-      topPredictedRisk: 'Hydrotherapy custom copper fixture lead time requiring 8-week advance vendor booking.',
-      valueEngineeringPotential: 620000
+      topPredictedRisk: 'Italian marble custom waterjet cutting layout verified and cleared with zero scrap loss.',
+      valueEngineeringPotential: 345000
     }
   }
 ];
@@ -633,96 +333,39 @@ export const initialAiPredictions: AiPredictionModel[] = [
     id: 'pred-01',
     title: 'Final Handover Date & Critical Path Burndown',
     category: 'Schedule & Handover',
-    targetScope: 'The Grand Heritage Estate',
-    projectId: 'proj-02',
-    forecastValue: '28 Nov 2026',
-    baselineValue: '15 Nov 2026',
-    variance: '+13 Days',
-    confidenceInterval: 89.4,
-    riskLevel: 'Moderate',
-    summary: 'Handcrafted teak wood archway fabrication and heritage ceiling plastering are tracking 11% below planned velocity, creating a 13-day projected overrun.',
+    targetScope: 'Demo Project',
+    projectId: 'proj-goldmine',
+    forecastValue: '20 Nov 2026',
+    baselineValue: '30 Nov 2026',
+    variance: '-10 Days Ahead',
+    confidenceInterval: 96.5,
+    riskLevel: 'Low',
+    summary: 'Master bedroom suite and living salon electrical runs are tracking 10 days ahead of schedule with zero quality defects.',
     rootCauses: [
-      'Specialized artisan carpenters operating at 82% attendance due to festival travel',
-      'Complex multifold vaulted ceiling structural framing taking 4 days longer than standard CAD baseline'
+      'Pre-negotiated vendor rate cards locked with Apex Civil Infra & MasterCraft Joinery',
+      'Unified Studio dimension matrix eliminating on-site re-measurement delays'
     ],
-    recommendedMitigation: 'Authorize 2 additional master craftsmen from Moradabad guild; parallelize electrical conduits with woodwork scaffolding.',
+    recommendedMitigation: 'Schedule early client walkthrough with Demo Client for Phase 1 handover inspection.',
     lastUpdated: '15 mins ago'
   },
   {
     id: 'pred-02',
-    title: 'HVAC & False Ceiling Sequencing Overrun Risk',
-    category: 'Schedule & Handover',
-    targetScope: 'Apex Sky Corporate HQ',
-    projectId: 'proj-04',
-    forecastValue: '08 Sep 2026',
-    baselineValue: '30 Aug 2026',
-    variance: '+9 Days',
-    confidenceInterval: 90.8,
-    riskLevel: 'Moderate',
-    summary: 'Chilled water pipe pressure test scheduling on 5th floor conflicts with acoustic gypsum tile 2nd fix.',
-    rootCauses: [
-      'MEP consultant delayed hydrostatic certification window by 5 days',
-      'Dual trade site congestion on Core West corridor'
-    ],
-    recommendedMitigation: 'Split test zones into East and West wings; execute night testing shifts to clear daytime ceiling teams.',
-    lastUpdated: '1 hour ago'
-  },
-  {
-    id: 'pred-03',
-    title: 'Imported Marble & Exotic Veneer Inflation Forecast',
+    title: 'Trade-Wise Material Rate Card Savings Radar',
     category: 'Cost & Margins',
-    targetScope: 'Entire Portfolio',
-    projectId: 'all',
-    forecastValue: '+4.8% Price Hike',
-    baselineValue: 'Locked Budget MSAs',
-    variance: '₹18.4L Exposure',
-    confidenceInterval: 93.5,
-    riskLevel: 'Moderate',
-    summary: 'Global maritime container freight rates from Livorno and Antwerp projected to increase 6% over next quarter, impacting stone & hardware batches.',
-    rootCauses: [
-      'Port congestion at Nhava Sheva adding 4-day demurrage exposure',
-      'Currency exchange volatility (EUR/INR) shifting by +1.4%'
-    ],
-    recommendedMitigation: 'Pre-book container lots for Azure Bay and Aura Sanctuary immediately using consolidated volume discount.',
-    lastUpdated: '30 mins ago'
-  },
-  {
-    id: 'pred-04',
-    title: 'Client Change Request Margin Erosion Radar',
-    category: 'Cost & Margins',
-    targetScope: 'The Grand Heritage Estate',
-    projectId: 'proj-02',
-    forecastValue: '23.8% Margin',
-    baselineValue: '27.0% Contract Target',
-    variance: '-3.2% Margin',
-    confidenceInterval: 94.1,
-    riskLevel: 'High',
-    summary: 'Two unpriced client change orders (wine cellar chiller addition & pool terrace pergola) risk absorbing project contingency buffer if unbilled.',
-    rootCauses: [
-      'Client verbal requests executed on site without Connect digital signature approval',
-      'Custom refrigeration engineering vendor quote not yet formalized into binding variation order'
-    ],
-    recommendedMitigation: 'Generate Connect instant digital variation agreement for ₹14.5L with milestone payment schedule.',
-    lastUpdated: '2 hours ago'
-  },
-  {
-    id: 'pred-05',
-    title: 'Supply Chain Port Clearance & Delivery Reliability',
-    category: 'Supply Chain Risk',
-    targetScope: 'Villa Serene Penthouse',
-    projectId: 'proj-01',
-    forecastValue: '98.2% On-Time',
-    baselineValue: '95.0% Standard SLA',
-    variance: '+3.2% Buffer',
-    confidenceInterval: 96.8,
+    targetScope: 'Demo Project',
+    projectId: 'proj-goldmine',
+    forecastValue: '32.5% Margin',
+    baselineValue: '28.0% Contract Target',
+    variance: '+4.5% Margin Gain',
+    confidenceInterval: 97.2,
     riskLevel: 'Low',
-    summary: 'All high-lead items (Rimadesio custom wardrobe systems & Flos architectural lights) cleared customs and held in secure local staging warehouse.',
+    summary: 'Cross-module vendor rate integration saved ₹5.35L across Annexure A to G compared to original budget estimation.',
     rootCauses: [
-      'Proactive 60-day advance PO issuance via Arqon Vendor automated trigger',
-      'Direct factory inspection verified in Milan'
+      'Direct mill procurement from MasterCraft Architectural Joinery',
+      'Standardized item codes across Studio BOQ and Cost module'
     ],
-    recommendedMitigation: 'Maintain scheduled installation start date on 14th of next month as planned.',
-    lastUpdated: '4 hours ago'
+    recommendedMitigation: 'Lock in remaining Annexure H & I contingency reserves into fixed deposit escrow.',
+    lastUpdated: '30 mins ago'
   }
 ];
 
@@ -730,78 +373,33 @@ export const initialAiPredictions: AiPredictionModel[] = [
 export const initialAiOptimizations: AiOptimizationSuggestion[] = [
   {
     id: 'opt-01',
-    title: 'Value Engineering: Italian Statuario vs Engineered Composite in Master Bath',
+    title: 'Value Engineering: Premium Laminate vs Veneer on Storage Partitions',
     engine: 'Studio',
     category: 'Value Engineering',
-    projectId: 'proj-02',
-    projectName: 'The Grand Heritage Estate',
-    impactSavingINR: 420000,
-    impactTimeDays: 0,
-    confidenceScore: 96,
-    description: 'Switch secondary guest bathroom vanity tops and shower ledges from imported Italian Statuario to Quartzite Composite slabs while preserving aesthetic fidelity.',
-    actionSummary: 'Replaces 420 sq.ft of natural marble with ultra-durable stain-resistant composite; updates Studio material palette and reduces Cost variance.',
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    impactSavingINR: 145000,
+    impactTimeDays: 2,
+    confidenceScore: 98,
+    description: 'Switch internal wardrobe carcasses from natural veneer to 1mm matte anti-scratch laminate while keeping outer facing in natural teak veneer.',
+    actionSummary: 'Saves ₹1.45L in material & polish labor without altering client-facing design language.',
     status: 'Pending Review',
     priority: 'High'
   },
   {
     id: 'opt-02',
-    title: 'Critical Path Compression: Parallelize False Ceiling & MEP 1st Fix',
-    engine: 'Flow',
-    category: 'Schedule Compression',
-    projectId: 'proj-02',
-    projectName: 'The Grand Heritage Estate',
-    impactSavingINR: 180000,
-    impactTimeDays: 11,
-    confidenceScore: 91,
-    description: 'Re-sequence Flow Gantt dependencies: execute MEP electrical conduits and GI grid ceiling suspension concurrently across Zone A and Zone B.',
-    actionSummary: 'Eliminates 11 days of critical path delay, recovering target handover date to 17 Nov 2026.',
-    status: 'Pending Review',
-    priority: 'Urgent'
-  },
-  {
-    id: 'opt-03',
-    title: 'Cross-Project Procurement Synergy: Consolidate Teak Wood & Veneer POs',
+    title: 'Procurement Synergy: Bulk Purchase Order for Modular Kitchen & Wardrobe Carcass',
     engine: 'Vendor',
     category: 'Procurement Synergy',
-    projectId: 'all',
-    projectName: 'Heritage Estate + Azure Bay',
-    impactSavingINR: 850000,
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    impactSavingINR: 200000,
     impactTimeDays: 4,
-    confidenceScore: 98,
-    description: 'Bundle timber requirements for The Grand Heritage Estate and Azure Bay Waterfront Villa into a single master procurement batch with TimberCraft Industries.',
-    actionSummary: 'Secures an additional 8.5% volume rebate and guarantees matching grain consistency across both high-profile sites.',
+    confidenceScore: 96,
+    description: 'Combine Annexure C (Electrical) wire raceways and Annexure A (Civil/Carpentry) floor ducting under a single PO with Voltech MEP Solutions.',
+    actionSummary: 'Secures an additional 7% vendor discount and aligns site installation milestones.',
     status: 'Pending Review',
     priority: 'High'
-  },
-  {
-    id: 'opt-04',
-    title: 'Drafting Team Workload Rebalancing: Shift 3D Assets to Aura Sanctuary Team',
-    engine: 'People',
-    category: 'Resource Rebalancing',
-    projectId: 'proj-04',
-    projectName: 'Apex Sky Corporate HQ',
-    impactSavingINR: 95000,
-    impactTimeDays: 6,
-    confidenceScore: 94,
-    description: 'Apex Sky drafting team is currently at 94% utilization while Aura Sanctuary team is at 78%. Reassign 6 architectural CAD detail packages.',
-    actionSummary: 'Prevents drafting backlog on HVAC riser drawings without incurring external freelance drafting fees.',
-    status: 'Pending Review',
-    priority: 'Medium'
-  },
-  {
-    id: 'opt-05',
-    title: 'Automated Client Milestone Payment Reminder & Digital Waiver',
-    engine: 'Connect',
-    category: 'Value Engineering',
-    projectId: 'proj-04',
-    projectName: 'Apex Sky Corporate HQ',
-    impactSavingINR: 0,
-    impactTimeDays: 5,
-    confidenceScore: 97,
-    description: 'Issue auto-verification of Completed Milestone 16 (Flooring & Structural Glazing) to Nesta FinTech CFO with embedded Razorpay/NEFT payment link.',
-    actionSummary: 'Accelerates accounts receivable collection cycle by 5 business days and maintains positive site cashflow.',
-    status: 'Pending Review',
-    priority: 'Medium'
   }
 ];
 

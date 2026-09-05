@@ -307,8 +307,14 @@ function SpaceCard({ space, dimension }: SpaceCardProps) {
                   </div>
                 </div>
                 <div className="p-4 rounded-xl bg-orange-50 dark:bg-orange-500/5 border border-orange-200 dark:border-orange-500/20 flex flex-col items-center justify-center text-center">
-                   <p className="text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-1">Execution Impact</p>
-                   <p className="text-sm font-bold text-slate-900 dark:text-white">Moderate Modifications Required</p>
+                   <p className="text-[10px] font-black text-orange-600 dark:text-orange-500 uppercase tracking-widest mb-1">Execution & BOQ Impact</p>
+                   <p className="text-sm font-bold text-slate-900 dark:text-white mb-2">Quantities Linked to Cost Matrix</p>
+                   <button 
+                     onClick={() => window.dispatchEvent(new CustomEvent('navigateToApp', { detail: { appId: 'cost', page: 'CostEstimates' } }))}
+                     className="text-[10px] font-black bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg uppercase tracking-wider transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                   >
+                     View BOQ Itemization <ArrowRight className="w-3 h-3" />
+                   </button>
                 </div>
               </div>
             </div>

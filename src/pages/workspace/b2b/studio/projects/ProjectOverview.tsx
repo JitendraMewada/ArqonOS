@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { 
   Building2, MapPin, Wallet, Calendar, 
   Maximize, Paperclip, FileText, User,
-  Save, AlertCircle, Clock
+  Save, AlertCircle, Clock, ExternalLink
 } from 'lucide-react';
 import { type Project, useStudio } from '../StudioContext';
 import { cn } from '../../../../../lib/utils';
+import { ThreePhaseProjectTimeline } from './components/ThreePhaseProjectTimeline';
 
 export function ProjectOverview({ project }: { project: Project }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -22,8 +23,8 @@ export function ProjectOverview({ project }: { project: Project }) {
     state: project.state || '',
     pincode: project.pincode || '',
     mapLocation: project.mapLocation || '',
-    startDate: project.startDate || '',
-    endDate: project.endDate || '',
+    startDate: project.startDate || '2026-05-01',
+    endDate: project.endDate || '2026-11-30',
     estimatedBudget: project.estimatedBudget || 0,
     approvedBudget: project.approvedBudget || 0,
     currentCost: project.currentCost || 0,
@@ -34,6 +35,10 @@ export function ProjectOverview({ project }: { project: Project }) {
     notes: project.notes || ''
   });
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleNavigateToCost = () => {
+    window.dispatchEvent(new CustomEvent('arqon_navigate_app', { detail: { appId: 'cost', page: 'Overview' } }));
+  };
 
   const handleChange = (field: keyof Project, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -58,7 +63,12 @@ export function ProjectOverview({ project }: { project: Project }) {
   return (
     <div className="flex-1 overflow-y-auto p-8 space-y-8 animate-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-black text-slate-900 dark:text-white">Project Information</h3>
+        <div>
+          <h3 className="text-xl font-black text-slate-900 dark:text-white">Project Information & Lifecycle</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            3-Engine progressive tracking (Connect → Studio → Cost) with real-time on-site execution synchronization.
+          </p>
+        </div>
         <button 
           onClick={handleSave}
           disabled={isSaving}
@@ -72,11 +82,18 @@ export function ProjectOverview({ project }: { project: Project }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* 3-Engine Lifecycle Matrix (Connect -> Studio -> Cost) */}
+      <ThreePhaseProjectTimeline 
+        projectCode={project.code}
+        isEditing={isEditing}
+        onNavigateToCost={handleNavigateToCost}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Core Metadata */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           <Section card title="Basic Details" icon={Building2}>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
               <InfoField label="Project Name" value={formData.name} isEditing={isEditing} onChange={(v) => handleChange('name', v)} />
               <InfoField label="Project Code" value={formData.code} isEditing={isEditing} onChange={(v) => handleChange('code', v)} />
               <InfoField label="Client Name" value={formData.clientName} isEditing={isEditing} onChange={(v) => handleChange('clientName', v)} />
@@ -87,8 +104,8 @@ export function ProjectOverview({ project }: { project: Project }) {
           </Section>
 
           <Section card title="Location" icon={MapPin}>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+              <div className="sm:col-span-2">
                 <InfoField label="Address" value={formData.address} isEditing={isEditing} onChange={(v) => handleChange('address', v)} />
               </div>
               <InfoField label="City" value={formData.city} isEditing={isEditing} onChange={(v) => handleChange('city', v)} />
@@ -98,18 +115,20 @@ export function ProjectOverview({ project }: { project: Project }) {
             </div>
           </Section>
 
-          <Section card title="Timeline & Progress" icon={Calendar}>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <InfoField label="Start Date" value={formData.startDate} isEditing={isEditing} onChange={(v) => handleChange('startDate', v)} type="date" />
-              <InfoField label="End Date" value={formData.endDate} isEditing={isEditing} onChange={(v) => handleChange('endDate', v)} type="date" />
-              <div className="col-span-2 space-y-2 pt-2">
-                <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
-                  <span>Project Progress</span>
-                  <span>0%</span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-orange-500 w-0 transition-all duration-1000" />
-                </div>
+          <Section card title="Project Scheduling & Dates" icon={Calendar}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+              <InfoField label="Design Kickoff Date" value={formData.startDate} isEditing={isEditing} onChange={(v) => handleChange('startDate', v)} type="date" />
+              <InfoField label="Estimated Handover Date" value={formData.endDate} isEditing={isEditing} onChange={(v) => handleChange('endDate', v)} type="date" />
+              <div className="sm:col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                <span>Detailed phase progression is synchronized across Connect, Studio, and Cost above.</span>
+                <button
+                  type="button"
+                  onClick={handleNavigateToCost}
+                  className="text-orange-500 hover:text-orange-600 font-bold flex items-center gap-1"
+                >
+                  <span>Open Cost Annexures</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
               </div>
             </div>
           </Section>

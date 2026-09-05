@@ -150,359 +150,75 @@ export interface InsightReportTemplate {
 
 export const INITIAL_PROJECT_INSIGHTS: ProjectInsight[] = [
   {
-    id: 'PRJ-2024-001',
-    code: 'VS-401',
-    name: 'Villa Serene Penthouse',
-    clientName: 'Rajesh & Sunita Singhania',
+    id: 'proj-goldmine',
+    code: 'demo-arq-001',
+    name: 'Demo Project',
+    clientName: 'Demo Client',
     type: 'Luxury Residential',
-    areaSqFt: 4500,
-    startDate: '2024-01-10',
-    targetEndDate: '2024-08-30',
-    forecastedEndDate: '2024-09-12',
+    areaSqFt: 1794,
+    startDate: '2024-05-01',
+    targetEndDate: '2024-11-30',
+    forecastedEndDate: '2024-11-20',
     status: 'Site Execution',
-    completionPercentage: 68,
-    healthScore: 84,
-    
-    // Connect
-    clientSatisfaction: 4.8,
-    contractValue: 12500000,
-    invoicedAmount: 8500000,
-    collectedAmount: 7500000,
-    receivables: 1000000,
-    dealConversionDays: 24,
-    
-    // Cost
-    allocatedBudget: 9200000,
-    actualCostToDate: 6420000,
-    committedPOCost: 2150000,
-    projectedCostAtCompletion: 9480000,
-    currentMarginPercent: 28.5,
-    projectedMarginPercent: 24.1,
-    budgetVariance: -280000, // Slightly over budget due to imported marble custom cut
-    costPerformanceIndex: 0.97,
-    
-    // Flow & Quest
-    schedulePerformanceIndex: 0.94,
-    totalMilestones: 8,
-    completedMilestones: 5,
-    activeBottlenecks: 1, // Custom Italian Joinery Transit
-    openTasks: 34,
-    overdueTasks: 3,
-    velocityScore: 18.5,
-    criticalPathRisk: 'Medium',
-    
-    // Studio
-    spacesCount: 8,
-    totalSpacesSqFt: 4500,
-    revisionCycles: 2.1,
-    approvedDrawingsPercent: 92,
-    pendingDesignApprovals: 2,
-    materialBoardsApproved: 6,
-    
-    // People
-    allocatedTeamSize: 6,
-    loggedHours: 1240,
-    budgetedHours: 1600,
-    utilizationRate: 88,
-    leadDesigner: 'Priya Sharma (Sr. Architect)',
-    projectManager: 'Vikramaditya Roy',
-    
-    // Vendor
-    activeVendorsCount: 9,
-    totalPOsIssued: 24,
-    materialDeliveryOnTimeRate: 91.5,
-    qualityDefectRate: 2.2,
-    vendorSLAComplianceRate: 94.0,
-    
-    // AI Engine
-    aiRiskFactor: 'Moderate',
-    aiPredictedDelayDays: 13,
-    aiSuggestedSavingsOpportunity: 145000,
-    confidenceScore: 89
-  },
-  {
-    id: 'PRJ-2024-002',
-    code: 'GHE-102',
-    name: 'The Grand Heritage Estate',
-    clientName: 'Maharaja Vikramaditya Trust',
-    type: 'Heritage Villa',
-    areaSqFt: 8200,
-    startDate: '2024-02-01',
-    targetEndDate: '2024-12-15',
-    forecastedEndDate: '2024-12-05',
-    status: 'Site Execution',
-    completionPercentage: 52,
-    healthScore: 92,
+    completionPercentage: 65,
+    healthScore: 94,
     
     // Connect
     clientSatisfaction: 4.9,
-    contractValue: 24000000,
-    invoicedAmount: 12000000,
-    collectedAmount: 12000000,
-    receivables: 0,
-    dealConversionDays: 45,
+    contractValue: 9785823,
+    invoicedAmount: 6500000,
+    collectedAmount: 6000000,
+    receivables: 500000,
+    dealConversionDays: 14,
     
     // Cost
-    allocatedBudget: 17500000,
-    actualCostToDate: 8950000,
-    committedPOCost: 6100000,
-    projectedCostAtCompletion: 16800000,
-    currentMarginPercent: 32.2,
-    projectedMarginPercent: 30.0,
-    budgetVariance: 700000, // ₹7L under budget due to bulk stone procurement discount
-    costPerformanceIndex: 1.04,
+    allocatedBudget: 9785823,
+    actualCostToDate: 4892911,
+    committedPOCost: 2800000,
+    projectedCostAtCompletion: 9250000,
+    currentMarginPercent: 32.5,
+    projectedMarginPercent: 30.5,
+    budgetVariance: 535823, // Under budget due to Trade-wise rate card optimization
+    costPerformanceIndex: 1.05,
     
     // Flow & Quest
     schedulePerformanceIndex: 1.02,
-    totalMilestones: 12,
+    totalMilestones: 10,
     completedMilestones: 6,
     activeBottlenecks: 0,
-    openTasks: 58,
-    overdueTasks: 1,
-    velocityScore: 26.0,
+    openTasks: 18,
+    overdueTasks: 0,
+    velocityScore: 28.5,
     criticalPathRisk: 'Low',
     
     // Studio
-    spacesCount: 14,
-    totalSpacesSqFt: 8200,
-    revisionCycles: 1.8,
-    approvedDrawingsPercent: 98,
+    spacesCount: 8,
+    totalSpacesSqFt: 6200,
+    revisionCycles: 1.2,
+    approvedDrawingsPercent: 96,
     pendingDesignApprovals: 1,
-    materialBoardsApproved: 12,
+    materialBoardsApproved: 8,
     
     // People
-    allocatedTeamSize: 9,
-    loggedHours: 2180,
-    budgetedHours: 3800,
-    utilizationRate: 94,
-    leadDesigner: 'Kavita Chawla (Design Director)',
-    projectManager: 'Aditya Sen',
+    allocatedTeamSize: 8,
+    loggedHours: 1420,
+    budgetedHours: 2200,
+    utilizationRate: 92,
+    leadDesigner: 'Jitendra Mewada (Lead Estimator & Designer)',
+    projectManager: 'Vikram Mehta',
     
     // Vendor
-    activeVendorsCount: 14,
-    totalPOsIssued: 42,
-    materialDeliveryOnTimeRate: 96.0,
-    qualityDefectRate: 1.1,
-    vendorSLAComplianceRate: 97.5,
+    activeVendorsCount: 6,
+    totalPOsIssued: 18,
+    materialDeliveryOnTimeRate: 96.5,
+    qualityDefectRate: 0.8,
+    vendorSLAComplianceRate: 97.2,
     
     // AI Engine
     aiRiskFactor: 'Minimal',
     aiPredictedDelayDays: -10, // Ahead of schedule
-    aiSuggestedSavingsOpportunity: 320000,
-    confidenceScore: 94
-  },
-  {
-    id: 'PRJ-2024-003',
-    code: 'ABW-204',
-    name: 'Azure Bay Waterfront Villa',
-    clientName: 'Dr. Cyrus Poonawalla',
-    type: 'Luxury Residential',
-    areaSqFt: 3800,
-    startDate: '2024-03-15',
-    targetEndDate: '2024-10-31',
-    forecastedEndDate: '2024-11-20',
-    status: 'Design Phase',
-    completionPercentage: 35,
-    healthScore: 76,
-    
-    // Connect
-    clientSatisfaction: 4.5,
-    contractValue: 9800000,
-    invoicedAmount: 3920000,
-    collectedAmount: 3500000,
-    receivables: 420000,
-    dealConversionDays: 18,
-    
-    // Cost
-    allocatedBudget: 7200000,
-    actualCostToDate: 2540000,
-    committedPOCost: 2800000,
-    projectedCostAtCompletion: 7450000,
-    currentMarginPercent: 27.2,
-    projectedMarginPercent: 23.9,
-    budgetVariance: -250000,
-    costPerformanceIndex: 0.95,
-    
-    // Flow & Quest
-    schedulePerformanceIndex: 0.89,
-    totalMilestones: 7,
-    completedMilestones: 2,
-    activeBottlenecks: 2, // Façade Glass Import & HVAC engineering approvals
-    openTasks: 42,
-    overdueTasks: 6,
-    velocityScore: 12.0,
-    criticalPathRisk: 'High',
-    
-    // Studio
-    spacesCount: 6,
-    totalSpacesSqFt: 3800,
-    revisionCycles: 3.4,
-    approvedDrawingsPercent: 78,
-    pendingDesignApprovals: 4,
-    materialBoardsApproved: 4,
-    
-    // People
-    allocatedTeamSize: 5,
-    loggedHours: 780,
-    budgetedHours: 1450,
-    utilizationRate: 82,
-    leadDesigner: 'Rohan Mehra (Sr. Designer)',
-    projectManager: 'Suresh Menon',
-    
-    // Vendor
-    activeVendorsCount: 7,
-    totalPOsIssued: 15,
-    materialDeliveryOnTimeRate: 84.0,
-    qualityDefectRate: 3.8,
-    vendorSLAComplianceRate: 88.0,
-    
-    // AI Engine
-    aiRiskFactor: 'Elevated',
-    aiPredictedDelayDays: 20,
-    aiSuggestedSavingsOpportunity: 95000,
-    confidenceScore: 82
-  },
-  {
-    id: 'PRJ-2024-004',
-    code: 'ASC-501',
-    name: 'Apex Sky Corporate HQ',
-    clientName: 'NexaTech Global Solutions',
-    type: 'Commercial Office',
-    areaSqFt: 12000,
-    startDate: '2024-01-05',
-    targetEndDate: '2024-07-31',
-    forecastedEndDate: '2024-08-05',
-    status: 'Finishing & Handover',
-    completionPercentage: 94,
-    healthScore: 95,
-    
-    // Connect
-    clientSatisfaction: 4.9,
-    contractValue: 31500000,
-    invoicedAmount: 29925000,
-    collectedAmount: 28350000,
-    receivables: 1575000,
-    dealConversionDays: 32,
-    
-    // Cost
-    allocatedBudget: 22800000,
-    actualCostToDate: 21200000,
-    committedPOCost: 950000,
-    projectedCostAtCompletion: 22150000,
-    currentMarginPercent: 29.8,
-    projectedMarginPercent: 29.6,
-    budgetVariance: 650000,
-    costPerformanceIndex: 1.03,
-    
-    // Flow & Quest
-    schedulePerformanceIndex: 0.99,
-    totalMilestones: 10,
-    completedMilestones: 9,
-    activeBottlenecks: 0,
-    openTasks: 16,
-    overdueTasks: 0,
-    velocityScore: 32.0,
-    criticalPathRisk: 'Low',
-    
-    // Studio
-    spacesCount: 18,
-    totalSpacesSqFt: 12000,
-    revisionCycles: 1.4,
-    approvedDrawingsPercent: 100,
-    pendingDesignApprovals: 0,
-    materialBoardsApproved: 18,
-    
-    // People
-    allocatedTeamSize: 12,
-    loggedHours: 4120,
-    budgetedHours: 4400,
-    utilizationRate: 96,
-    leadDesigner: 'Priya Sharma (Sr. Architect)',
-    projectManager: 'Vikramaditya Roy',
-    
-    // Vendor
-    activeVendorsCount: 18,
-    totalPOsIssued: 64,
-    materialDeliveryOnTimeRate: 98.2,
-    qualityDefectRate: 0.8,
-    vendorSLAComplianceRate: 98.0,
-    
-    // AI Engine
-    aiRiskFactor: 'Minimal',
-    aiPredictedDelayDays: 5,
-    aiSuggestedSavingsOpportunity: 410000,
-    confidenceScore: 97
-  },
-  {
-    id: 'PRJ-2024-005',
-    code: 'AWS-303',
-    name: 'Aura Wellness Sanctuary',
-    clientName: 'Aura Spa & Wellness Resorts',
-    type: 'Hospitality',
-    areaSqFt: 5500,
-    startDate: '2024-04-01',
-    targetEndDate: '2024-11-15',
-    forecastedEndDate: '2024-11-28',
-    status: 'Site Execution',
-    completionPercentage: 45,
-    healthScore: 81,
-    
-    // Connect
-    clientSatisfaction: 4.6,
-    contractValue: 15400000,
-    invoicedAmount: 6930000,
-    collectedAmount: 6160000,
-    receivables: 770000,
-    dealConversionDays: 28,
-    
-    // Cost
-    allocatedBudget: 11200000,
-    actualCostToDate: 5100000,
-    committedPOCost: 3900000,
-    projectedCostAtCompletion: 11420000,
-    currentMarginPercent: 27.5,
-    projectedMarginPercent: 25.8,
-    budgetVariance: -220000,
-    costPerformanceIndex: 0.98,
-    
-    // Flow & Quest
-    schedulePerformanceIndex: 0.93,
-    totalMilestones: 9,
-    completedMilestones: 4,
-    activeBottlenecks: 1, // Custom Acoustical Paneling & Sauna Equipment
-    openTasks: 38,
-    overdueTasks: 2,
-    velocityScore: 16.0,
-    criticalPathRisk: 'Medium',
-    
-    // Studio
-    spacesCount: 9,
-    totalSpacesSqFt: 5500,
-    revisionCycles: 2.3,
-    approvedDrawingsPercent: 88,
-    pendingDesignApprovals: 2,
-    materialBoardsApproved: 8,
-    
-    // People
-    allocatedTeamSize: 7,
-    loggedHours: 1150,
-    budgetedHours: 2100,
-    utilizationRate: 86,
-    leadDesigner: 'Kavita Chawla (Design Director)',
-    projectManager: 'Aditya Sen',
-    
-    // Vendor
-    activeVendorsCount: 11,
-    totalPOsIssued: 28,
-    materialDeliveryOnTimeRate: 90.0,
-    qualityDefectRate: 2.5,
-    vendorSLAComplianceRate: 92.5,
-    
-    // AI Engine
-    aiRiskFactor: 'Moderate',
-    aiPredictedDelayDays: 13,
-    aiSuggestedSavingsOpportunity: 180000,
-    confidenceScore: 86
+    aiSuggestedSavingsOpportunity: 345000,
+    confidenceScore: 95
   }
 ];
 

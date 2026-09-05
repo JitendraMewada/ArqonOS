@@ -273,9 +273,12 @@ function DimensionItem({ dimension }: DimensionItemProps) {
                 }} />
               </label>
             </div>
-            <div className="flex items-center gap-2">
-               <button onClick={() => window.dispatchEvent(new CustomEvent('changeStudioTab', { detail: 'Spaces' }))} className="text-[10px] font-black text-orange-600 dark:text-orange-500 hover:underline px-3 py-1 uppercase tracking-widest flex items-center gap-2">
+            <div className="flex items-center gap-3">
+               <button onClick={() => window.dispatchEvent(new CustomEvent('changeStudioTab', { detail: 'Spaces' }))} className="text-[10px] font-black text-orange-600 dark:text-orange-500 hover:underline px-3 py-1 uppercase tracking-widest flex items-center gap-1.5">
                  Map to Space <ArrowRight className="w-3 h-3" />
+               </button>
+               <button onClick={() => window.dispatchEvent(new CustomEvent('navigateToApp', { detail: { appId: 'cost', page: 'CostEstimates' } }))} className="text-[10px] font-black bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30 px-3 py-1.5 rounded-lg uppercase tracking-widest flex items-center gap-1.5 hover:bg-orange-100 transition-all">
+                 <Calculator className="w-3.5 h-3.5" /> View Auto BOQ
                </button>
             </div>
           </div>

@@ -79,7 +79,7 @@ export function InsightDashboardPage() {
               onChange={(e) => setSelectedProjectId(e.target.value)}
               className="text-xs font-bold text-slate-800 dark:text-slate-100 bg-transparent border-none outline-none cursor-pointer"
             >
-              <option value="all">Portfolio View (All Projects)</option>
+              <option value="all">Portfolio View (All Projects — {projects.length} Active Project{projects.length === 1 ? '' : 's'})</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.code} — {p.name}

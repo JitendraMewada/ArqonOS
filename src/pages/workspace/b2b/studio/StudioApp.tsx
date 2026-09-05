@@ -3,6 +3,8 @@ import { StudioHelp } from './StudioHelp';
 import { StudioProvider, useStudio } from './StudioContext';
 import { StudioDashboard } from './StudioDashboard';
 import { StudioTemplates } from './StudioTemplates';
+import { StudioCollaboration } from './StudioCollaboration';
+import { StudioSettings } from './StudioSettings';
 import { ProjectLayout } from './projects/ProjectLayout';
 import { cn } from '../../../../lib/utils';
 
@@ -25,8 +27,8 @@ function StudioContent({ activePage, onNavigate }: Omit<StudioAppProps, 'navigat
     case 'Help': return <StudioHelp />;
     case 'Dashboard': return <StudioDashboard />;
     case 'Templates': return <StudioTemplates />;
-    case 'Collaboration': return <div className="flex-1 flex items-center justify-center text-slate-500">Collaboration module coming soon...</div>;
-    case 'Settings': return <div className="flex-1 flex items-center justify-center text-slate-500">Settings module coming soon...</div>;
+    case 'Collaboration': return <StudioCollaboration />;
+    case 'Settings': return <StudioSettings />;
     default: return <StudioDashboard />;
   }
 }

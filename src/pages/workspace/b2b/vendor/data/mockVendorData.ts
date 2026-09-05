@@ -424,9 +424,9 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
   {
     id: 'PO-2024-081',
     poNumber: 'PO-2024-081',
-    projectId: 'PRJ-2024-001',
-    projectName: 'Villa Serene Penthouse',
-    projectCode: 'VSP-01',
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    projectCode: 'demo-arq-001',
     vendorId: 'VND-001',
     vendorName: 'Artisan Woodcraft & Millwork Guild',
     vendorCategory: 'Millwork & Custom Joinery',
@@ -436,26 +436,26 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
     lineItems: [
       {
         id: 'LI-01',
-        itemDescription: 'Master Bedroom Fluted Walnut Headboard & Paneling',
-        specification: 'Grade A Natural American Walnut with micro-bevel flutes, PU matte seal',
+        itemDescription: 'MD Cabin & Conference Room Acoustic Fluted Walnut Wall Paneling',
+        specification: 'Grade A Natural American Walnut with micro-bevel flutes, PU matte seal, BWP marine ply backing',
         quantity: 240,
         unit: 'Sq.Ft',
         unitRate: 1250,
         totalAmount: 300000,
-        studioSpaceRef: 'Master Bedroom',
-        studioDrawingRef: 'DWG-MBR-012',
+        studioSpaceRef: 'MD Cabin (Executive)',
+        studioDrawingRef: 'DWG-MD-001',
         inspectionStatus: 'Passed QC'
       },
       {
         id: 'LI-02',
-        itemDescription: 'Walk-In Wardrobe Modular Carcasses with Smoked Glass Shutters',
+        itemDescription: 'Full Height Storage Credenzas & Smoked Glass Display Shutters',
         specification: 'Marine ply BWP 710 grade, Hafele soft-close concealed hinges with internal LED strips',
         quantity: 1,
         unit: 'Sets',
         unitRate: 450000,
         totalAmount: 450000,
-        studioSpaceRef: 'Walk-In Closet',
-        studioDrawingRef: 'DWG-WIC-008',
+        studioSpaceRef: 'Main Reception & Lounge',
+        studioDrawingRef: 'DWG-REC-002',
         inspectionStatus: 'Pending Inspection'
       }
     ],
@@ -466,9 +466,9 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
     paidAmount: 442500,
     paymentStatus: 'Partially Paid',
     deliveryStatus: 'In Production',
-    shippingAddress: 'Villa Serene, Tower A Penthouse 42, Palm Meadows, Whitefield, Bengaluru',
-    siteSupervisorContact: 'Kavita Iyer (+91 98450 77123)',
-    procurementOfficer: 'Rohit Deshmukh',
+    shippingAddress: 'Demo Project Site, Demo Tower, Demo City, Demo State - 000000',
+    siteSupervisorContact: 'Vikram Mehta (+91 98201 44552)',
+    procurementOfficer: 'Jitendra Mewada',
     terms: '50% advance released on drawing freeze; balance 50% within 15 days of site delivery and QA signoff.',
     costSynced: true,
     notes: 'Drawings approved by Lead Designer; carpenter site mock-up verified.'
@@ -476,9 +476,9 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
   {
     id: 'PO-2024-082',
     poNumber: 'PO-2024-082',
-    projectId: 'PRJ-2024-001',
-    projectName: 'Villa Serene Penthouse',
-    projectCode: 'VSP-01',
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    projectCode: 'demo-arq-001',
     vendorId: 'VND-003',
     vendorName: 'Carrara & Makrana Stone Importers',
     vendorCategory: 'Stone, Marble & Tiles',
@@ -489,13 +489,13 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
       {
         id: 'LI-03',
         itemDescription: 'Book-Matched Statuario Extra White Marble Slabs',
-        specification: '20mm slab thickness, mirror-polished finish, high density resin treated',
+        specification: '20mm slab thickness, mirror-polished finish, high density epoxy resin treated',
         quantity: 850,
         unit: 'Sq.Ft',
         unitRate: 1100,
         totalAmount: 935000,
-        studioSpaceRef: 'Formal Living & Dining',
-        studioDrawingRef: 'DWG-LIV-004',
+        studioSpaceRef: 'Main Reception & Lounge',
+        studioDrawingRef: 'DWG-REC-001',
         inspectionStatus: 'Passed QC'
       }
     ],
@@ -506,9 +506,9 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
     paidAmount: 1103300,
     paymentStatus: 'Paid',
     deliveryStatus: 'Inspected & Accepted',
-    shippingAddress: 'Villa Serene, Tower A Penthouse 42, Palm Meadows, Whitefield, Bengaluru',
-    siteSupervisorContact: 'Kavita Iyer (+91 98450 77123)',
-    procurementOfficer: 'Rohit Deshmukh',
+    shippingAddress: 'Demo Project Site, Demo Tower, Demo City, Demo State - 000000',
+    siteSupervisorContact: 'Vikram Mehta (+91 98201 44552)',
+    procurementOfficer: 'Jitendra Mewada',
     terms: 'Full payment cleared against final QC slab inspection report.',
     costSynced: true,
     notes: 'Zero cracks recorded. Dry lay completed on site.'
@@ -516,9 +516,9 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
   {
     id: 'PO-2024-083',
     poNumber: 'PO-2024-083',
-    projectId: 'PRJ-2024-001',
-    projectName: 'Villa Serene Penthouse',
-    projectCode: 'VSP-01',
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    projectCode: 'demo-arq-001',
     vendorId: 'VND-002',
     vendorName: 'Lumina Architectural & Smart Lighting',
     vendorCategory: 'Electrical, MEP & Lighting',
@@ -534,8 +534,8 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
         unit: 'Pcs',
         unitRate: 6500,
         totalAmount: 234000,
-        studioSpaceRef: 'Formal Living & Gallery',
-        studioDrawingRef: 'DWG-ELE-019',
+        studioSpaceRef: 'Conference & Board Room',
+        studioDrawingRef: 'DWG-CONF-003',
         inspectionStatus: 'Pending Inspection'
       },
       {
@@ -546,8 +546,8 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
         unit: 'Pcs',
         unitRate: 1850,
         totalAmount: 88800,
-        studioSpaceRef: 'All Bathrooms & Foyer',
-        studioDrawingRef: 'DWG-ELE-020',
+        studioSpaceRef: 'Open Workstation Floor',
+        studioDrawingRef: 'DWG-WORK-004',
         inspectionStatus: 'Pending Inspection'
       }
     ],
@@ -558,92 +558,12 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
     paidAmount: 0,
     paymentStatus: 'Unpaid',
     deliveryStatus: 'In Transit',
-    shippingAddress: 'Villa Serene, Tower A Penthouse 42, Palm Meadows, Whitefield, Bengaluru',
-    siteSupervisorContact: 'Kavita Iyer (+91 98450 77123)',
-    procurementOfficer: 'Rohit Deshmukh',
+    shippingAddress: 'Demo Project Site, Demo Tower, Demo City, Demo State - 000000',
+    siteSupervisorContact: 'Vikram Mehta (+91 98201 44552)',
+    procurementOfficer: 'Jitendra Mewada',
     terms: 'Net 15 upon site delivery verification.',
     costSynced: true,
     notes: 'Air freight dispatch from Mumbai warehouse. Tracking active.'
-  },
-  {
-    id: 'PO-2024-084',
-    poNumber: 'PO-2024-084',
-    projectId: 'PRJ-2024-002',
-    projectName: 'The Grand Heritage Estate',
-    projectCode: 'GHE-02',
-    vendorId: 'VND-006',
-    vendorName: 'Apex Architectural Glass & Facades',
-    vendorCategory: 'Glass, Glazing & Metal Works',
-    issueDate: '2024-02-18',
-    expectedDeliveryDate: '2024-03-08',
-    actualDeliveryDate: undefined,
-    lineItems: [
-      {
-        id: 'LI-06',
-        itemDescription: 'Double Glazed Acoustic Glass Partitions with Slim Brass Profile',
-        specification: '12mm + 12mm laminated Saint-Gobain Planilaque with PVD titanium coated frames',
-        quantity: 420,
-        unit: 'Sq.Ft',
-        unitRate: 1450,
-        totalAmount: 609000,
-        studioSpaceRef: 'Library & Formal Study',
-        studioDrawingRef: 'DWG-LIB-003',
-        inspectionStatus: 'Pending Inspection'
-      }
-    ],
-    subtotal: 609000,
-    taxRatePercentage: 18,
-    taxAmount: 109620,
-    totalAmount: 718620,
-    paidAmount: 359310,
-    paymentStatus: 'Partially Paid',
-    deliveryStatus: 'Dispatched',
-    shippingAddress: 'Grand Heritage Estate, Plot 14, Golf Links Drive, Gurugram',
-    siteSupervisorContact: 'Deepak Sharma (+91 98110 44291)',
-    procurementOfficer: 'Rohit Deshmukh',
-    terms: '50% advance, balance 50% post installation and acoustic seal testing.',
-    costSynced: true,
-    notes: 'Glass tempering certificate received.'
-  },
-  {
-    id: 'PO-2024-085',
-    poNumber: 'PO-2024-085',
-    projectId: 'PRJ-2024-003',
-    projectName: 'Azure Bay Waterfront Villa',
-    projectCode: 'ABW-03',
-    vendorId: 'VND-008',
-    vendorName: 'Klima & Sens Intelligent HVAC & IoT',
-    vendorCategory: 'HVAC, Automation & Smart Home',
-    issueDate: '2024-02-22',
-    expectedDeliveryDate: '2024-03-15',
-    actualDeliveryDate: undefined,
-    lineItems: [
-      {
-        id: 'LI-07',
-        itemDescription: 'VRV Indoor Concealed Ducted Fan Coil Units (5.5 TR Total)',
-        specification: 'Inverter driven, ultra-quiet 24 dB(A), with anti-corrosion blue fin coating for coastal air',
-        quantity: 4,
-        unit: 'Sets',
-        unitRate: 185000,
-        totalAmount: 740000,
-        studioSpaceRef: 'Living & Master Suite',
-        studioDrawingRef: 'DWG-HVAC-001',
-        inspectionStatus: 'Pending Inspection'
-      }
-    ],
-    subtotal: 740000,
-    taxRatePercentage: 18,
-    taxAmount: 133200,
-    totalAmount: 873200,
-    paidAmount: 0,
-    paymentStatus: 'Unpaid',
-    deliveryStatus: 'Issued',
-    shippingAddress: 'Azure Bay Villa 7, Candolim Beach Road, North Goa',
-    siteSupervisorContact: 'Anthony D\'Souza (+91 98221 00492)',
-    procurementOfficer: 'Rohit Deshmukh',
-    terms: 'Net 30 days after installation and nitrogen pressure leak test.',
-    costSynced: true,
-    notes: 'Outdoor VRV condensing unit location finalized on terrace.'
   }
 ];
 
@@ -652,10 +572,10 @@ export const initialRFQs: RFQ[] = [
   {
     id: 'RFQ-2024-019',
     rfqNumber: 'RFQ-2024-019',
-    projectId: 'PRJ-2024-001',
-    projectName: 'Villa Serene Penthouse',
-    projectCode: 'VSP-01',
-    title: 'Custom Curved Bouclé Lounge Sectionals & Dining Chairs',
+    projectId: 'proj-goldmine',
+    projectName: 'Demo Project',
+    projectCode: 'demo-arq-001',
+    title: 'Custom Curved Bouclé Lounge Sectionals & Executive Chairs',
     category: 'FF&E & Luxury Furniture',
     createdDate: '2024-02-18',
     deadlineDate: '2024-03-02',
@@ -671,10 +591,10 @@ export const initialRFQs: RFQ[] = [
         targetSpec: 'Custom modular 3-piece curved layout with recessed oak plinth'
       },
       {
-        description: 'Sculptural Dining Chairs with Brass Tapered Legs',
+        description: 'Sculptural Executive Leather Chairs with Brass Tapered Base',
         quantity: 10,
         unit: 'Pcs',
-        targetSpec: 'Padded backrest, velvet/bouclé dual tone finish'
+        targetSpec: 'Padded backrest, full-grain Italian leather finish'
       }
     ],
     invitedVendors: ['VND-005', 'VND-001'],
@@ -698,37 +618,6 @@ export const initialRFQs: RFQ[] = [
         remarks: 'Includes on-site white-glove placement and 3-year frame warranty.'
       }
     ]
-  },
-  {
-    id: 'RFQ-2024-020',
-    rfqNumber: 'RFQ-2024-020',
-    projectId: 'PRJ-2024-002',
-    projectName: 'The Grand Heritage Estate',
-    projectCode: 'GHE-02',
-    title: 'Antique PVD Brass Heritage Door Hardware & Concealed Pivots',
-    category: 'Glass, Glazing & Metal Works',
-    createdDate: '2024-02-22',
-    deadlineDate: '2024-03-08',
-    status: 'Open for Bids',
-    targetDeliveryDate: '2024-03-30',
-    specifications: 'Solid forged unlacquered brass hardware, knurled cylinder handles, FritsJurgens heavy duty pivot systems (System M+).',
-    estimatedBudget: 420000,
-    items: [
-      {
-        description: 'FritsJurgens System M+ Heavy Duty Pivot Hinge Set',
-        quantity: 8,
-        unit: 'Sets',
-        targetSpec: 'Max door weight 500kg, damper control, hold positions at 0, 90, and -90 deg'
-      },
-      {
-        description: 'Custom 1200mm Knurled Brass Pull Handles',
-        quantity: 12,
-        unit: 'Pairs',
-        targetSpec: 'Aged antique brass patina with nano-ceramic protective coating'
-      }
-    ],
-    invitedVendors: ['VND-006', 'VND-001'],
-    bids: []
   }
 ];
 
@@ -755,8 +644,8 @@ export const initialVendorContracts: VendorContract[] = [
     insurancePolicyNumber: 'HDFC-ERGO-IND-2024-91823',
     status: 'Active',
     signedByVendor: 'Vikramaditya Solanki (Managing Director)',
-    signedByArqon: 'Aarav Mehta (Head of Procurement & Operations)',
-    governingLaw: 'Jurisdiction of Bengaluru, Karnataka, India'
+    signedByArqon: 'Jitendra Mewada (Lead Estimator & Procurement)',
+    governingLaw: 'Jurisdiction of Mumbai, Maharashtra, India'
   },
   {
     id: 'CTR-2024-002',
@@ -778,55 +667,8 @@ export const initialVendorContracts: VendorContract[] = [
     insurancePolicyNumber: 'BAJAJ-ALLIANZ-TRAN-88291',
     status: 'Active',
     signedByVendor: 'Rajeshwar Jain (Partner)',
-    signedByArqon: 'Aarav Mehta (Head of Procurement & Operations)',
+    signedByArqon: 'Jitendra Mewada (Lead Estimator & Procurement)',
     governingLaw: 'Jurisdiction of Mumbai & Kishangarh'
-  },
-  {
-    id: 'CTR-2024-003',
-    contractNumber: 'CTR-2024-003',
-    title: 'Penthouse Turnkey Acoustic Glazing & Facade Subcontract',
-    vendorId: 'VND-006',
-    vendorName: 'Apex Architectural Glass & Facades',
-    projectId: 'PRJ-2024-002',
-    projectName: 'The Grand Heritage Estate',
-    projectCode: 'GHE-02',
-    contractType: 'Project Turnkey Subcontract',
-    startDate: '2024-02-01',
-    endDate: '2024-04-30',
-    renewalAlertDate: '2024-04-10',
-    totalContractValue: 1850000,
-    paymentMilestones: [
-      '40% Advance against glass processing',
-      '40% On site arrival',
-      '20% Post water-tightness & sound attenuation testing (STC 42dB+)'
-    ],
-    penaltyClauses: '0.5% per calendar day for schedule overrun beyond milestone dates.',
-    warrantyPeriodMonths: 60,
-    insurancePolicyNumber: 'ICICI-LOMB-ENG-77192',
-    status: 'Active',
-    signedByVendor: 'Farhan Sheikh (Director Projects)',
-    signedByArqon: 'Aarav Mehta (Head of Procurement & Operations)',
-    governingLaw: 'Jurisdiction of New Delhi & Gurugram'
-  },
-  {
-    id: 'CTR-2024-004',
-    contractNumber: 'CTR-2024-004',
-    title: 'Architectural Lighting & DALI Smart Driver Supply Agreement',
-    vendorId: 'VND-002',
-    vendorName: 'Lumina Architectural & Smart Lighting',
-    contractType: 'Material Supply Agreement',
-    startDate: '2023-04-01',
-    endDate: '2024-03-31',
-    renewalAlertDate: '2024-03-01',
-    totalContractValue: 4500000,
-    paymentMilestones: ['Net 15 days from delivery verification.'],
-    penaltyClauses: 'Defective driver replacement within 48 hours.',
-    warrantyPeriodMonths: 60,
-    insurancePolicyNumber: 'TATA-AIG-COM-55102',
-    status: 'Expiring Soon',
-    signedByVendor: 'Meera Nambiar (VP Commercials)',
-    signedByArqon: 'Aarav Mehta (Head of Procurement & Operations)',
-    governingLaw: 'Jurisdiction of Mumbai'
   }
 ];
 
@@ -834,45 +676,24 @@ export const initialVendorContracts: VendorContract[] = [
 export const initialShipments: DeliveryShipment[] = [
   {
     id: 'SHP-2024-101',
-    trackingNumber: 'BLR-EXP-902194',
+    trackingNumber: 'MUM-EXP-902194',
     poNumber: 'PO-2024-083',
     vendorName: 'Lumina Architectural & Smart Lighting',
-    projectName: 'Villa Serene Penthouse',
-    projectCode: 'VSP-01',
+    projectName: 'Demo Project',
+    projectCode: 'demo-arq-001',
     carrier: 'Blue Dart Air Express Priority',
     driverContact: '+91 99201 44810',
     vehicleNumber: 'MH-04-GD-4910',
     originCity: 'Mumbai Warehouse Hub',
-    destinationSite: 'Villa Serene Site, Whitefield, Bengaluru',
+    destinationSite: 'Demo Project Site, Demo Tower, Demo City',
     dispatchDate: '2024-02-26 14:30',
     estimatedArrival: '2024-03-01 11:00',
     status: 'In Transit',
-    currentLocation: 'Bengaluru Airport Logistics Hub - Cleared Inward Customs',
+    currentLocation: 'Mumbai Cargo Logistics Hub - Cleared Inward Inspection',
     checkpoints: [
-      { timestamp: '2024-02-26 14:30', location: 'Mumbai Andheri DC', statusNote: 'Packed in anti-static crates & loaded on flight BA-492' },
-      { timestamp: '2024-02-27 06:15', location: 'Bengaluru Cargo Terminal', statusNote: 'Received at Devanahalli cargo gate, undergoing sorting' },
-      { timestamp: '2024-02-28 10:00', location: 'Whitefield Regional Hub', statusNote: 'Out for final morning delivery to site' }
-    ]
-  },
-  {
-    id: 'SHP-2024-102',
-    trackingNumber: 'GUR-TRK-771829',
-    poNumber: 'PO-2024-084',
-    vendorName: 'Apex Architectural Glass & Facades',
-    projectName: 'The Grand Heritage Estate',
-    projectCode: 'GHE-02',
-    carrier: 'SafeXpress Specialized Glass Carriers',
-    driverContact: '+91 98119 22019',
-    vehicleNumber: 'HR-26-CZ-8821',
-    originCity: 'Gurugram Fabrication Yard',
-    destinationSite: 'Grand Heritage Site, Golf Links, Gurugram',
-    dispatchDate: '2024-02-27 09:00',
-    estimatedArrival: '2024-03-02 16:00',
-    status: 'In Transit',
-    currentLocation: 'Palam Vihar A-Frame Specialized Loading Dock',
-    checkpoints: [
-      { timestamp: '2024-02-27 09:00', location: 'Gurugram Yard', statusNote: 'A-frame padded glass racks inspected & strapped' },
-      { timestamp: '2024-02-28 14:00', location: 'Sohna Road Bypass', statusNote: 'En route under hydraulic escort' }
+      { timestamp: '2024-02-26 14:30', location: 'Mumbai Andheri DC', statusNote: 'Packed in anti-static crates & dispatched' },
+      { timestamp: '2024-02-27 06:15', location: 'Mumbai Central Hub', statusNote: 'Sorting completed, scheduled for delivery' },
+      { timestamp: '2024-02-28 10:00', location: 'Andheri East Dispatch', statusNote: 'Out for final delivery to site' }
     ]
   }
 ];
@@ -880,33 +701,13 @@ export const initialShipments: DeliveryShipment[] = [
 // Project reference dataset for unified multi-engine integration
 export const projectReferences = [
   {
-    id: 'PRJ-2024-001',
-    code: 'VSP-01',
-    name: 'Villa Serene Penthouse',
-    client: 'Vikram & Radhika Singhania',
-    location: 'Whitefield, Bengaluru',
-    totalBudget: 4200000,
-    committedVendorSpend: 2369204,
+    id: 'proj-goldmine',
+    code: 'demo-arq-001',
+    name: 'Demo Project',
+    client: 'Demo Client',
+    location: 'Demo Tower, Demo City, Demo State - 000000',
+    totalBudget: 9785823,
+    committedVendorSpend: 6800000,
     status: 'In Execution'
-  },
-  {
-    id: 'PRJ-2024-002',
-    code: 'GHE-02',
-    name: 'The Grand Heritage Estate',
-    client: 'Devendra & Sunita Oberoi',
-    location: 'Golf Links, Gurugram',
-    totalBudget: 6800000,
-    committedVendorSpend: 1838620,
-    status: 'In Execution'
-  },
-  {
-    id: 'PRJ-2024-003',
-    code: 'ABW-03',
-    name: 'Azure Bay Waterfront Villa',
-    client: 'Carlos & Maya Alvares',
-    location: 'Candolim, North Goa',
-    totalBudget: 3500000,
-    committedVendorSpend: 873200,
-    status: 'Procurement Active'
   }
 ];

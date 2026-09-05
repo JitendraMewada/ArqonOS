@@ -43,7 +43,25 @@ export function CostProvider({ children }: { children: React.ReactNode }) {
     if (saved && saved !== 'undefined' && saved !== 'null') {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Check if cached demo project has the updated 9 spaces
+          const gm = parsed.find(p => p.projectId === 'proj-goldmine');
+          if (gm && gm.spaces && gm.spaces.length >= 9) {
+            return parsed.map(p => {
+              if (p.projectId === 'proj-goldmine' || p.projectName?.includes('Goldmine')) {
+                return {
+                  ...p,
+                  projectName: 'Demo Project',
+                  projectCode: 'demo-arq-001',
+                  clientName: 'Demo Client',
+                  projectType: 'Residence',
+                  location: 'Demo Tower, Demo City, Demo State - 000000',
+                };
+              }
+              return p;
+            });
+          }
+        }
       } catch (e) {
         console.error('Error parsing saved cost projects', e);
       }
@@ -56,7 +74,14 @@ export function CostProvider({ children }: { children: React.ReactNode }) {
     if (saved && saved !== 'undefined' && saved !== 'null') {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= 10) {
+          return parsed.map((e: CostExpense) => {
+            if (e.projectName?.includes('Goldmine')) {
+              return { ...e, projectName: 'Demo Project' };
+            }
+            return e;
+          });
+        }
       } catch (e) {
         console.error('Error parsing saved cost expenses', e);
       }

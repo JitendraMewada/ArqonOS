@@ -32,9 +32,7 @@ export function FlowApp({ activePage, onNavigate, navigateToApp }: FlowAppProps)
   ]);
 
   const [activeProjects, setActiveProjects] = useState<ActiveProject[]>([
-    { id: 'p-1', name: 'Project Alpha', client: 'Acme Corp', workflowId: 'wf-1', currentStageId: 'st-2', status: 'On Track', startDate: '2026-10-15' },
-    { id: 'p-2', name: 'Project Beta', client: 'Globex', workflowId: 'wf-1', currentStageId: 'st-1', status: 'Delayed', startDate: '2026-10-20' },
-    { id: 'p-3', name: 'Project Gamma', client: 'Initech', workflowId: 'wf-1', currentStageId: 'st-3', status: 'Blocked', startDate: '2026-09-05' },
+    { id: 'p-1', name: 'Demo Project', client: 'Demo Client', workflowId: 'wf-1', currentStageId: 'st-2', status: 'On Track', startDate: '2026-05-01' }
   ]);
 
   const [automations, setAutomations] = useState<Automation[]>([

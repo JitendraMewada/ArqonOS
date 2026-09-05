@@ -15,12 +15,10 @@ import { TEAM_MEMBERS, type TeamMember } from '../../../../data/team';
 import { cn } from '../../../../lib/utils';
 
 const INITIAL_TASKS: Task[] = [
-  { id: '1', title: 'Approve vendor contract for Alpha', due: 'Today', priority: 'High', status: 'To Do', tags: ['Legal'], listId: 'My Tasks', done: false, project: 'Project Alpha', createdBy: { name: 'Sarah Connor', avatar: 44 } },
-  { id: '2', title: 'Update Q3 roadmap', due: 'Tomorrow', priority: 'Medium', status: 'In Progress', tags: ['Strategy', 'Planning'], listId: 'My Tasks', done: false, project: 'Company Workspace', createdBy: { name: 'David Lee', avatar: 12 } },
-  { id: '3', title: 'Onboard new UI designer', due: 'Next Week', priority: 'Low', status: 'To Do', tags: ['HR'], listId: 'My Tasks', done: false, project: 'Team Building', createdBy: { name: 'You' } },
-  { id: '4', title: 'Review structural calculations', due: 'Today', priority: 'High', status: 'Review', tags: ['Engineering'], listId: 'Urgent', done: false, project: 'Nexa Skyline', createdBy: { name: 'David Lee', avatar: 12 } },
-  { id: '5', title: 'Prepare board deck', due: 'Friday', priority: 'High', status: 'In Progress', tags: ['Leadership'], listId: 'My Tasks', done: false, project: 'Acme Corp', createdBy: { name: 'Sarah Connor', avatar: 44 } },
-  { id: '6', title: 'Weekly sync with remote team', due: 'Today', priority: 'Medium', status: 'To Do', tags: ['Internal'], listId: 'Urgent', done: true, project: 'Internal Ops', createdBy: { name: 'You' } },
+  { id: '1', title: 'Verify Italian Marble & Dry Lay on Site', due: 'Today', priority: 'High', status: 'In Progress', tags: ['Civil', 'BOQ'], listId: 'My Tasks', done: false, project: 'Demo Project', createdBy: { name: 'Jitendra Mewada', avatar: 44 } },
+  { id: '2', title: 'Review Saint-Gobain False Ceiling Pelmet Details', due: 'Tomorrow', priority: 'Medium', status: 'In Progress', tags: ['POP', 'Design'], listId: 'My Tasks', done: false, project: 'Demo Project', createdBy: { name: 'Marcus Sterling', avatar: 12 } },
+  { id: '3', title: 'Dispatch PO for Marine-Grade Joinery to MasterCraft', due: 'Friday', priority: 'High', status: 'To Do', tags: ['Vendor', 'PO'], listId: 'Urgent', done: false, project: 'Demo Project', createdBy: { name: 'Vikram Mehta' } },
+  { id: '4', title: 'DALI-2 Smart Lighting & Switch Plate Approval Signoff', due: 'Today', priority: 'High', status: 'Review', tags: ['Electrical', 'Client'], listId: 'Urgent', done: false, project: 'Demo Project', createdBy: { name: 'Kenji Takahashi', avatar: 12 } }
 ];
 
 const INITIAL_EVENTS: QuestEvent[] = [

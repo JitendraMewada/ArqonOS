@@ -28,10 +28,13 @@ import {
   ExternalLink,
   ChevronDown,
   X,
-  Calendar
+  Calendar,
+  FileSpreadsheet,
+  Calculator
 } from 'lucide-react';
 import { useCost } from './CostContext';
 import { ProjectFinancials, CostExpense, SpaceCostBreakdown } from './data/mockCostData';
+import { CostEstimatesPage } from './CostEstimatesPage';
 import { cn } from '../../../../lib/utils';
 
 export function CostOverview() {
@@ -49,7 +52,7 @@ export function CostOverview() {
   } = useCost();
 
   // Active view tabs
-  const [activeTab, setActiveTab] = useState<'matrix' | 'spaces' | 'categories' | 'labor' | 'invoices' | 'expenses'>('matrix');
+  const [activeTab, setActiveTab] = useState<'estimates' | 'matrix' | 'spaces' | 'categories' | 'labor' | 'invoices' | 'expenses'>('estimates');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'Active' | 'On Hold' | 'Completed'>('ALL');
   const [healthFilter, setHealthFilter] = useState<'ALL' | 'Healthy' | 'Caution' | 'Critical Overrun'>('ALL');
@@ -384,6 +387,25 @@ export function CostOverview() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto scrollbar-none">
             <button
+              onClick={() => setActiveTab('estimates')}
+              className={cn(
+                "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap",
+                activeTab === 'estimates'
+                  ? "bg-orange-500 text-white shadow-sm shadow-orange-500/20"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+              )}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Auto-Estimates & BOQ Annexures</span>
+              <span className={cn(
+                "text-[10px] px-1.5 py-0.2 rounded-md font-black",
+                activeTab === 'estimates' ? "bg-white/20 text-white" : "bg-orange-500/10 text-orange-600 dark:text-orange-400"
+              )}>
+                NEW
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('matrix')}
               className={cn(
                 "px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all flex items-center gap-2 whitespace-nowrap",
@@ -477,6 +499,15 @@ export function CostOverview() {
             />
           </div>
         </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 0: AUTO-ESTIMATES & BOQ ANNEXURES (DEMO PROJECT ENGINE)  */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'estimates' && (
+          <div className="-mx-6 -my-2">
+            <CostEstimatesPage />
+          </div>
+        )}
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 1: ALL PROJECTS FINANCIAL MATRIX                          */}

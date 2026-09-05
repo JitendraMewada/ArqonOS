@@ -14,10 +14,7 @@ interface ConnectAppProps {
 }
 
 const INITIAL_LEADS: Lead[] = [
-  { id: '1', clientName: 'Acme Corp', projectName: 'HQ Redesign', projectType: 'Commercial', clientEmail: 'contact@acme.com', clientPhone: '555-0101', estimatedValue: 120000, status: 'meeting_scheduled', source: 'Website', notes: 'Interested in modern aesthetic', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastContactedAt: '2 hours ago', assignedTo: 'John Doe' },
-  { id: '2', clientName: 'Global Tech', projectName: 'Office Expansion', projectType: 'Workplace', clientEmail: 'hello@globaltech.com', clientPhone: '555-0102', estimatedValue: 350000, status: 'proposal_sent', source: 'Referral', notes: 'Needs detailed 3D renders', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastContactedAt: '1 day ago', assignedTo: 'Sarah Connor' },
-  { id: '3', clientName: 'Stark Industries', projectName: 'R&D Lab', projectType: 'Industrial', clientEmail: 'tony@stark.com', clientPhone: '555-0103', estimatedValue: 850000, status: 'won', source: 'Networking', notes: 'High tech requirements', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastContactedAt: '3 days ago', assignedTo: 'John Doe' },
-  { id: '4', clientName: 'Wayne Enterprises', projectName: 'Batcave Renovation', projectType: 'Residential', clientEmail: 'bruce@wayne.com', clientPhone: '555-0104', estimatedValue: 500000, status: 'contacted', source: 'Walk-in', notes: 'Needs discreet handling', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastContactedAt: '5 hours ago', assignedTo: 'Sarah Connor' },
+  { id: '1', clientName: 'Demo Client', projectName: 'Demo Project', projectType: 'Residence', clientEmail: 'client@demoproject.com', clientPhone: '+91 00000 00000', estimatedValue: 9785823, status: 'won', source: 'Direct Referral', notes: 'Master turnkey interior fitout with Trade-wise BOQ Engine signoff', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), lastContactedAt: '1 hour ago', assignedTo: 'Jitendra Mewada' }
 ];
 
 const INITIAL_COMMS: Communication[] = [
