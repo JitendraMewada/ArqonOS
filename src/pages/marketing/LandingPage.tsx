@@ -130,7 +130,7 @@ export function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link to="/gateway" className="px-8 py-4 bg-[#3b82f6] text-white font-bold rounded-md flex items-center justify-center gap-2 group w-full sm:w-auto shadow-lg shadow-[#3b82f633] hover:bg-[#3b82f6e6] transition-all hover:translate-y-[-2px]">
+            <Link to="/pricing" className="px-8 py-4 bg-[#3b82f6] text-white font-bold rounded-md flex items-center justify-center gap-2 group w-full sm:w-auto shadow-lg shadow-[#3b82f633] hover:bg-[#3b82f6e6] transition-all hover:translate-y-[-2px]">
               Enter Workspace <ArrowRight className="w-4 h-4" />
             </Link>
             <Link to="/modules/arqonos" className="px-6 py-3 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-md hover:bg-white dark:hover:bg-slate-900 w-full sm:w-auto flex items-center justify-center transition-all">

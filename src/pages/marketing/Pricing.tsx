@@ -295,7 +295,7 @@ export function Pricing() {
                </div>
 
                <Link 
-                to="/gateway" 
+                to={`/gateway?segment=b2b&addons=${selectedAddons.join(',')}&users=${userCount}`} 
                 className="w-full flex items-center justify-center gap-3 py-5 bg-white text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-500 hover:text-white transition-all group active:scale-95 shadow-xl shadow-blue-500/10"
                >
                  Activate System <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -344,7 +344,7 @@ export function Pricing() {
                    {plan.includes.map(inc => <li key={inc} className="flex items-center text-xs font-bold text-slate-700 dark:text-slate-300"><Check className="w-3 h-3 text-green-500 mr-2"/> {inc}</li>)}
                 </ul>
 
-                <Link to="/gateway" className="block text-center py-3 bg-green-500 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-green-600 transition-colors">Select {plan.name}</Link>
+                <Link to={`/gateway?segment=b2c&plan=${plan.id}`} className="block text-center py-3 bg-green-500 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-green-600 transition-colors">Select {plan.name}</Link>
               </motion.div>
             ))}
           </div>

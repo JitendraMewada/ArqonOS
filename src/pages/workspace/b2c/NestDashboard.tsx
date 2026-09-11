@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Users, 
   Wallet, 
@@ -7,7 +7,6 @@ import {
   PieChart, 
   HelpCircle, 
   PlusCircle, 
-  Sparkles, 
   ChevronRight, 
   PanelLeftClose, 
   PanelLeft, 
@@ -23,10 +22,17 @@ import {
   CheckSquare,
   Scale,
   Send,
-  History
+  History,
+  Home,
+  Calendar,
+  Sparkles,
+  Building2,
+  CheckCircle2,
+  ShieldCheck
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
+import { useAuth } from '../../../context/AuthContext';
 import { cn } from '../../../lib/utils';
 import { 
   NestGroup, 
@@ -38,7 +44,8 @@ import {
   NestRecurringRule,
   NestReminderItem,
   NestReconciliationRecord,
-  NestMemberNudge 
+  NestMemberNudge,
+  NestPlanId
 } from './types';
 import { 
   INITIAL_NEST_GROUP, 
@@ -52,6 +59,9 @@ import {
   INITIAL_RECONCILIATION_HISTORY,
   INITIAL_MEMBER_NUDGES
 } from './mockNestData';
+import { NestCheckoutModal } from '../../../components/NestCheckoutModal';
+import { getSubscriptionValidationDates } from '../../../utils/billing';
+import { PRICING_CONFIG } from '../../../constants/pricing';
 
 // Subcomponents
 import { NestOverview } from './components/NestOverview';
@@ -69,6 +79,20 @@ import { NestReconciliationModal } from './components/NestReconciliationModal';
 import { NestMemberNudgeModal } from './components/NestMemberNudgeModal';
 
 export function NestDashboard() {
+  const { user, profile, loading, isMockMode, logout, updateUserProfile } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading) {
+      const isAuthenticated = user !== null || isMockMode;
+      if (!isAuthenticated) {
+        navigate("/gateway?segment=b2c");
+      } else if (profile && profile.segment && profile.segment !== "b2c") {
+        navigate("/workspace/b2b");
+      }
+    }
+  }, [user, profile, loading, isMockMode, navigate]);
+
   const [activeApp, setActiveApp] = useState<string>('overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState(false);
@@ -93,6 +117,48 @@ export function NestDashboard() {
 
   const [isAddTxOpen, setIsAddTxOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<NestTransaction | null>(null);
+
+  // Modular Checkout & Monthly Validation Dates State
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutPlanId, setCheckoutPlanId] = useState<NestPlanId>((group.plan as NestPlanId) || 'nest_plus');
+
+  const validationDates = useMemo(() => {
+    return getSubscriptionValidationDates(
+      profile?.createdAt,
+      profile?.subscriptionValidUntil,
+      profile?.billingCycleStart
+    );
+  }, [profile?.createdAt, profile?.subscriptionValidUntil, profile?.billingCycleStart]);
+
+  const activeNestPlanName = useMemo(() => {
+    const found = PRICING_CONFIG.NEST_PLANS.find(p => p.id === group.plan);
+    return found ? found.name : 'Nest Plus';
+  }, [group.plan]);
+
+  const handleCheckoutSuccess = async (
+    updatedPlanId: NestPlanId,
+    updatedMaxUsers: number,
+    newDates: { validUntil: string; cycleStart: string }
+  ) => {
+    setGroup(prev => ({
+      ...prev,
+      plan: updatedPlanId
+    }));
+    try {
+      if (updateUserProfile) {
+        await updateUserProfile({
+          planId: updatedPlanId,
+          maxUsers: updatedMaxUsers,
+          billingCycleStart: newDates.cycleStart,
+          billingCycleEnd: newDates.validUntil,
+          subscriptionValidUntil: newDates.validUntil,
+          lastPaymentDate: new Date().toISOString()
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update profile after checkout:", err);
+    }
+  };
 
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
   const [editingRecurringRule, setEditingRecurringRule] = useState<NestRecurringRule | null>(null);
@@ -480,6 +546,21 @@ export function NestDashboard() {
     { id: 'help', name: 'Help & Quick Guide', icon: HelpCircle },
   ];
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 bg-[#22c55e] rounded-xl flex items-center justify-center shadow-md shadow-[#22c55e33] animate-bounce">
+            <Layers className="w-5 h-5 text-white animate-spin" />
+          </div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
+            Loading Nest Workspace...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex flex-col lg:flex-row p-4 gap-4 font-sans lg:h-screen lg:overflow-hidden relative transition-colors duration-300">
        
@@ -576,8 +657,8 @@ export function NestDashboard() {
        {/* Main Content Area */}
        <main className="flex-grow flex flex-col gap-4 min-w-0">
           {/* Topbar Card */}
-          <header className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4 h-[88px] rounded-xl flex items-center justify-between shrink-0 transition-colors">
-             <div className="flex items-center gap-2 sm:gap-4 px-1 sm:px-2">
+          <header className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-4 h-auto min-h-[88px] rounded-xl flex flex-wrap items-center justify-between gap-3 shrink-0 transition-colors">
+             <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-1 sm:px-2">
                 <button 
                   onClick={() => setIsSidebarMobileOpen(true)}
                   className="lg:hidden w-10 h-10 rounded-lg flex items-center justify-center text-slate-500 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
@@ -591,19 +672,76 @@ export function NestDashboard() {
                 >
                    {isSidebarCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
                 </button>
+
                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
-                <div className="hidden sm:flex items-center bg-slate-50 dark:bg-slate-950 px-4 py-2 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner">
-                  <div className="flex items-center gap-3">
+                {/* Registered Group Display (Near on-screen monthly validation dates) */}
+                <div 
+                  id="dashboard-registered-group-badge"
+                  className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm"
+                  title={`Registered Group: ${group.name || profile?.companyName || "Sharma Family Workspace"}`}
+                >
+                  <div className="w-6 h-6 rounded-md bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] flex items-center justify-center shrink-0">
+                    <Home className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex flex-col text-left leading-tight max-w-[130px] xl:max-w-[170px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                        Registered Group
+                      </span>
+                      <span className="text-[7.5px] font-bold px-1 py-0.2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded">
+                        Active
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {group.name || profile?.companyName || "Sharma Family Workspace"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* On-screen Monthly Validation Dates Display */}
+                <div 
+                  id="dashboard-monthly-validation-dates"
+                  className="hidden md:flex items-center gap-2.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg shadow-sm"
+                  title={`Active Monthly Cycle: ${validationDates.startFormatted} to ${validationDates.endFormatted}`}
+                >
+                  <Calendar className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <div className="flex flex-col text-left leading-tight">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                      Cycle: {validationDates.startFormatted} – {validationDates.endFormatted}
+                    </span>
+                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-medium">
+                      {validationDates.daysRemaining} days left • Renews {validationDates.endFormatted}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Nest Plan & Member Quota Pill */}
+                <div className="flex items-center bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner hidden xl:flex">
+                  <div className="flex items-center gap-2.5">
                     <div className="px-2 py-0.5 bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-[9px] font-black uppercase tracking-tight rounded-md">
-                      Nest Plus
+                      {activeNestPlanName}
                     </div>
                     <div className="h-3 w-px bg-slate-200 dark:bg-slate-800"></div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                       <Users className="w-3 h-3 text-[#22c55e]" /> {group.name} ({members.length} Members)
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Users className="w-3 h-3 text-[#22c55e]" />
+                      {members.length} / {profile?.maxUsers || 3} Members
                     </div>
                   </div>
                 </div>
+
+                {/* Manage Plan / Upgrade Button */}
+                <button
+                  onClick={() => {
+                    setCheckoutPlanId((group.plan as NestPlanId) || 'nest_plus');
+                    setIsCheckoutOpen(true);
+                  }}
+                  className="px-3 py-1.5 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/30 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm hidden 2xl:flex"
+                  title="Authorize & Manage Nest Subscription"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Manage Plan</span>
+                </button>
              </div>
 
              <div className="flex items-center gap-3">
@@ -649,11 +787,58 @@ export function NestDashboard() {
                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Family Organizer</span>
                   </div>
                 </div>
-                <Link to="/gateway" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <button 
+                  onClick={() => logout()}
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  title="Sign Out"
+                >
                   <LogOut className="w-5 h-5" />
-                </Link>
+                </button>
              </div>
           </header>
+
+          {/* Mobile / Tablet Responsive Bar: Registered Group & Monthly Validation Dates */}
+          <div 
+            id="mobile-registered-group-validation-banner"
+            className="lg:hidden flex items-center justify-between p-2.5 px-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm gap-2 shrink-0 transition-colors"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-md bg-[#22c55e]/10 text-[#22c55e] flex items-center justify-center shrink-0">
+                <Home className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex flex-col min-w-0 text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[8px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Registered Group
+                  </span>
+                  <span className="text-[7.5px] font-extrabold px-1 bg-[#22c55e]/10 text-[#22c55e] rounded">
+                    {activeNestPlanName}
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  {group.name || profile?.companyName || "Sharma Family Workspace"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Calendar className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <div className="flex flex-col text-right text-[9px] leading-tight">
+                  <span className="font-bold text-emerald-700 dark:text-emerald-300">{validationDates.daysRemaining}d Left</span>
+                  <span className="text-[8px] text-slate-500 dark:text-slate-400">Renews {validationDates.endFormatted}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setCheckoutPlanId((group.plan as NestPlanId) || 'nest_plus');
+                  setIsCheckoutOpen(true);
+                }}
+                className="px-2.5 py-1.5 bg-[#22c55e] hover:bg-[#1ea34d] text-white rounded-lg text-[9px] font-bold uppercase tracking-wider shrink-0 shadow-sm"
+              >
+                Upgrade
+              </button>
+            </div>
+          </div>
 
           {/* Dynamic Module Canvas */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-6 sm:p-8 rounded-xl flex-grow overflow-y-auto custom-scrollbar relative transition-colors">
@@ -673,6 +858,11 @@ export function NestDashboard() {
                      onOpenReconciliation={() => setIsReconciliationOpen(true)}
                      onOpenNudgeCenter={handleOpenNudgeCenterWithMember}
                      onNavigateTab={(tab) => setActiveApp(tab)}
+                     onOpenUpgradeModal={() => {
+                       setCheckoutPlanId((group.plan as NestPlanId) || 'nest_plus');
+                       setIsCheckoutOpen(true);
+                     }}
+                     validationDates={validationDates}
                    />
                  )}
 
@@ -740,6 +930,11 @@ export function NestDashboard() {
                      onUpdateGroup={setGroup}
                      onDisburseAllowances={handleDisburseAllowances}
                      onOpenNudgeCenter={handleOpenNudgeCenterWithMember}
+                     onOpenUpgradeModal={() => {
+                       setCheckoutPlanId((group.plan as NestPlanId) || 'nest_plus');
+                       setIsCheckoutOpen(true);
+                     }}
+                     validationDates={validationDates}
                    />
                  )}
 
@@ -828,6 +1023,17 @@ export function NestDashboard() {
          onSendNudge={handleSendNudge}
          onAcknowledgeNudge={handleAcknowledgeNudge}
          onDeleteNudge={handleDeleteNudge}
+       />
+
+       {/* Modular Subscription Checkout & Payment Authorization Modal */}
+       <NestCheckoutModal
+         isOpen={isCheckoutOpen}
+         onClose={() => setIsCheckoutOpen(false)}
+         onSuccess={handleCheckoutSuccess}
+         profile={profile}
+         group={group}
+         initialSelectedPlan={checkoutPlanId}
+         membersCount={members.length}
        />
 
     </div>

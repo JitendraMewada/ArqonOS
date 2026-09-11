@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
 import { LandingPage } from './pages/marketing/LandingPage';
 import { ModuleShowcase } from './pages/marketing/ModuleShowcase';
@@ -26,6 +26,7 @@ function AppContent() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/get-started" element={<Navigate to="/pricing" replace />} />
             <Route path="/modules/:moduleId" element={<ModuleShowcase />} />
             <Route path="/gateway" element={<Gateway />} />
             <Route path="/pricing" element={<Pricing />} />

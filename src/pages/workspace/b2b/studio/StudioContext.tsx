@@ -5,6 +5,7 @@ import {
   where, 
   onSnapshot, 
   addDoc, 
+  setDoc,
   updateDoc, 
   deleteDoc, 
   doc, 
@@ -448,8 +449,10 @@ export function StudioProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(`mock_team_${projectId}`, JSON.stringify([...members, newMember]));
       return;
     }
-    await addDoc(collection(db, 'projects', projectId, 'team'), {
+    const memberId = memberData.userId || `member-${Date.now()}`;
+    await setDoc(doc(db, 'projects', projectId, 'team', memberId), {
       ...memberData,
+      id: memberId,
       projectId,
       assignedAt: serverTimestamp()
     });

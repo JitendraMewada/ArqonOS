@@ -28,7 +28,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500 dark:text-slate-400 underline-offset-8">
           <Link to="/modules/arqonos" className="hover:text-[#3b82f6] transition-colors uppercase tracking-[0.1em] text-[11px] font-black">Ecosystem</Link>
           <Link to="/pricing" className="hover:text-[#3b82f6] transition-colors uppercase tracking-[0.1em] text-[11px] font-black">Pricing</Link>
-          <Link to="/gateway" className="hover:text-[#3b82f6] transition-colors uppercase tracking-[0.1em] text-[11px] font-black">Workspace</Link>
+          <Link to="/pricing" className="hover:text-[#3b82f6] transition-colors uppercase tracking-[0.1em] text-[11px] font-black">Workspace</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -41,7 +41,7 @@ export function Navbar() {
           </button>
 
           <Link to="/gateway" className="hidden md:block text-[11px] font-black uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400 hover:text-[#3b82f6] transition-colors">Sign In</Link>
-          <Link to="/gateway" className="px-3 py-1.5 md:px-5 md:py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] md:text-sm font-bold md:font-semibold rounded-md shadow-lg shadow-slate-200 dark:shadow-none hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors">
+          <Link to="/pricing" className="px-3 py-1.5 md:px-5 md:py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] md:text-sm font-bold md:font-semibold rounded-md shadow-lg shadow-slate-200 dark:shadow-none hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors">
             Get Started
           </Link>
           
@@ -67,7 +67,7 @@ export function Navbar() {
             <div className="flex flex-col p-6 gap-4">
               <Link onClick={() => setIsOpen(false)} to="/modules/arqonos" className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white py-3 border-b border-slate-50 dark:border-slate-800 hover:text-[#3b82f6] transition-colors">Ecosystem</Link>
               <Link onClick={() => setIsOpen(false)} to="/pricing" className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white py-3 border-b border-slate-50 dark:border-slate-800 hover:text-[#3b82f6] transition-colors">Pricing</Link>
-              <Link onClick={() => setIsOpen(false)} to="/gateway" className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white py-3 border-b border-slate-50 dark:border-slate-800 hover:text-[#3b82f6] transition-colors">Workspace</Link>
+              <Link onClick={() => setIsOpen(false)} to="/pricing" className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white py-3 border-b border-slate-50 dark:border-slate-800 hover:text-[#3b82f6] transition-colors">Workspace</Link>
               <Link onClick={() => setIsOpen(false)} to="/gateway" className="text-sm font-black uppercase tracking-widest text-[#3b82f6] py-3">Sign In</Link>
             </div>
           </motion.div>

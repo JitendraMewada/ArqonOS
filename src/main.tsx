@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Simple logging for mobile debugging
 console.log('[ArqonOS] Application initializing...');
@@ -83,7 +84,9 @@ if (!rootElement) {
     <StrictMode>
       <ErrorBoundary>
         <ThemeProvider>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </ThemeProvider>
       </ErrorBoundary>
     </StrictMode>

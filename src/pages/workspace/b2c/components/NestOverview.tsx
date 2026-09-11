@@ -67,6 +67,12 @@ interface NestOverviewProps {
   onNavigateTab: (tabId: string) => void;
   onOpenReconciliation?: () => void;
   onOpenNudgeCenter?: () => void;
+  onOpenUpgradeModal?: () => void;
+  validationDates?: {
+    startFormatted: string;
+    endFormatted: string;
+    daysRemaining: number;
+  };
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -95,7 +101,9 @@ export function NestOverview({
   onAddTransaction,
   onNavigateTab,
   onOpenReconciliation,
-  onOpenNudgeCenter
+  onOpenNudgeCenter,
+  onOpenUpgradeModal,
+  validationDates
 }: NestOverviewProps) {
   const [chartView, setChartView] = useState<'cashflow' | 'budget_compare'>('cashflow');
 
@@ -278,6 +286,45 @@ export function NestOverview({
               Analytics
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Group Subscription & Monthly Cycle Validity Strip */}
+      <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Calendar className="w-4 h-4" />
+          </div>
+          <div className="flex flex-col text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                Active Monthly Billing Cycle
+              </span>
+              {validationDates && (
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  {validationDates.daysRemaining} days left
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              {validationDates ? `${validationDates.startFormatted} – ${validationDates.endFormatted} • Next renewal on ${validationDates.endFormatted}` : 'Active monthly billing schedule'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+            {group.plan.replace('_', ' ').toUpperCase()} • {members.length} Members
+          </div>
+          {onOpenUpgradeModal && (
+            <button
+              onClick={onOpenUpgradeModal}
+              className="px-3 py-1 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/30 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>Manage Plan</span>
+            </button>
+          )}
         </div>
       </div>
 
