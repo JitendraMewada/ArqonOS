@@ -24,9 +24,12 @@ import {
   Smartphone,
   ShieldCheck,
   Receipt,
-  Copy
+  Copy,
+  Users,
+  Wallet,
+  Briefcase
 } from 'lucide-react';
-import { useAuth, UserProfile } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PRICING_CONFIG } from '../../constants/pricing';
 import { calculateB2BBilling, getSubscriptionValidationDates } from '../../utils/billing';
@@ -55,6 +58,11 @@ export function Gateway() {
   const planParam = searchParams.get('plan'); // e.g. 'nest_plus'
   const modeParam = searchParams.get('mode'); // 'register' or 'signin'
 
+  // Workspace Segment State: 'b2b' (ArqonOS) vs 'b2c' (Arqon Nest)
+  const [activeSegment, setActiveSegment] = useState<'b2b' | 'b2c'>(
+    segmentParam === 'b2c' ? 'b2c' : 'b2b'
+  );
+
   const [isRegister, setIsRegister] = useState(false);
   
   // Registration Form State
@@ -66,18 +74,22 @@ export function Gateway() {
   const [gstin, setGstin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Modular Plan Configuration State
+  // B2B Modular Plan Configuration State
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
-  const [userCount, setUserCount] = useState<number>(5);
+  const [b2bUserCount, setB2bUserCount] = useState<number>(5);
 
-  // Corporate Payment Channels State
+  // B2C Nest Group Plan Configuration State
+  const [nestPlanId, setNestPlanId] = useState<string>(planParam || 'nest_plus');
+  const [nestMembersCount, setNestMembersCount] = useState<number>(3);
+
+  // Corporate & Group Payment Channels State
   const [paymentChannel, setPaymentChannel] = useState<'upi' | 'card' | 'netbanking'>('upi');
-  const [corporateVpa, setCorporateVpa] = useState('finance@okhdfcbank');
+  const [paymentVpa, setPaymentVpa] = useState('finance@okhdfcbank');
   const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8821');
   const [cardExpiry, setCardExpiry] = useState('11/29');
   const [cardCvv, setCardCvv] = useState('892');
   const [cardHolder, setCardHolder] = useState('');
-  const [corporateBank, setCorporateBank] = useState('HDFC Bank Corporate Portal');
+  const [selectedBank, setSelectedBank] = useState('HDFC Bank Corporate Portal');
 
   // Multi-step Authorization & Processing States
   const [authError, setAuthError] = useState<string | null>(null);
@@ -91,6 +103,12 @@ export function Gateway() {
 
   // Initialize selected addons and user count from URL params
   useEffect(() => {
+    if (segmentParam === 'b2c' || segmentParam === 'b2b') {
+      setActiveSegment(segmentParam);
+    }
+    if (planParam) {
+      setNestPlanId(planParam);
+    }
     if (addonsParam) {
       const parsed = addonsParam.split(',').filter(Boolean);
       setSelectedAddons(parsed);
@@ -98,13 +116,42 @@ export function Gateway() {
     if (usersParam) {
       const parsedUsers = parseInt(usersParam, 10);
       if (!isNaN(parsedUsers) && parsedUsers >= 1) {
-        setUserCount(parsedUsers);
+        if (segmentParam === 'b2c') {
+          setNestMembersCount(parsedUsers);
+        } else {
+          setB2bUserCount(parsedUsers);
+        }
       }
     }
     if (segmentParam || planParam || addonsParam || usersParam || modeParam === 'register') {
       setIsRegister(true);
     }
   }, [segmentParam, planParam, addonsParam, usersParam, modeParam]);
+
+  // Sync role and VPA defaults when segment switches
+  useEffect(() => {
+    if (activeSegment === 'b2c') {
+      if (role === 'General Manager' || role === 'Account' || role === 'Lead Designer') {
+        setRole('Group Organizer');
+      }
+      if (paymentVpa === 'finance@okhdfcbank') {
+        setPaymentVpa('sharma.family@okhdfcbank');
+      }
+      if (selectedBank === 'HDFC Bank Corporate Portal') {
+        setSelectedBank('HDFC Bank NetBanking');
+      }
+    } else {
+      if (role === 'Group Organizer' || role === 'Family Head' || role === 'Member') {
+        setRole('General Manager');
+      }
+      if (paymentVpa === 'sharma.family@okhdfcbank') {
+        setPaymentVpa('finance@okhdfcbank');
+      }
+      if (selectedBank === 'HDFC Bank NetBanking') {
+        setSelectedBank('HDFC Bank Corporate Portal');
+      }
+    }
+  }, [activeSegment]);
 
   // Keep card holder in sync with name or company if empty
   useEffect(() => {
@@ -117,13 +164,17 @@ export function Gateway() {
   const validationDates = getSubscriptionValidationDates();
 
   // Calculate dynamic B2B billing
-  const b2bBilling = calculateB2BBilling(selectedAddons, userCount);
+  const b2bBilling = calculateB2BBilling(selectedAddons, b2bUserCount);
 
-  // B2C Nest calculations if segment is b2c
-  const selectedNestPlan = PRICING_CONFIG.NEST_PLANS.find(p => p.id === planParam);
-  const b2cTotal = selectedNestPlan ? selectedNestPlan.price : 0;
+  // Calculate dynamic B2C Nest billing: Total = Base Plan + (Extra Users * 99)
+  const selectedNestPlan = PRICING_CONFIG.NEST_PLANS.find(p => p.id === nestPlanId) || PRICING_CONFIG.NEST_PLANS[1];
+  const nestExtraMembers = Math.max(0, nestMembersCount - 3);
+  const nestTotalMonthly = selectedNestPlan.price + (nestExtraMembers * 99);
 
-  // Toggle modular add-on selection
+  // Current effective monthly amount
+  const currentTotalAmount = activeSegment === 'b2c' ? nestTotalMonthly : b2bBilling.totalMonthlyPrice;
+
+  // Toggle modular add-on selection for B2B
   const toggleAddon = (addonId: string) => {
     setSelectedAddons(prev => 
       prev.includes(addonId) 
@@ -132,16 +183,19 @@ export function Gateway() {
     );
   };
 
-  // Adjust team user count (minimum 1, standard 5)
-  const adjustUsers = (delta: number) => {
-    setUserCount(prev => Math.max(1, prev + delta));
+  // Adjust team / member count
+  const adjustB2BUsers = (delta: number) => {
+    setB2bUserCount(prev => Math.max(1, prev + delta));
+  };
+  const adjustNestMembers = (delta: number) => {
+    setNestMembersCount(prev => Math.max(1, prev + delta));
   };
 
   // Redirect authenticated users to their designated workspace unless viewing receipt or holdRedirect
   useEffect(() => {
     const isAuthenticated = user !== null || isMockMode;
     if (isAuthenticated && profile && !holdRedirect && !registrationReceipt) {
-      const targetSegment = segmentParam || profile.segment || 'b2b';
+      const targetSegment = activeSegment || profile.segment || 'b2b';
       let targetPath = `/workspace/${targetSegment}`;
       
       if (targetSegment === 'b2b') {
@@ -153,10 +207,7 @@ export function Gateway() {
       }
       navigate(targetPath);
     }
-  }, [user, isMockMode, profile, segmentParam, searchParams, navigate, holdRedirect, registrationReceipt]);
-
-  // Authority Verification Check
-  const isAuthorizedRole = role === 'General Manager' || role === 'Account' || role === 'Lead Designer';
+  }, [user, isMockMode, profile, activeSegment, searchParams, navigate, holdRedirect, registrationReceipt]);
 
   // Copy transaction ID to clipboard
   const handleCopyTxn = (id: string) => {
@@ -174,43 +225,47 @@ export function Gateway() {
 
     try {
       await loginWithEmail(email, password);
-      setAuthSuccess("Authenticated successfully! Initializing workspace session...");
+      setAuthSuccess(`Authenticated successfully! Initializing ${activeSegment === 'b2c' ? 'Nest Group' : 'Firm Workspace'} session...`);
     } catch (err: any) {
       const isOperationNotAllowed = err.code === 'auth/operation-not-allowed' || err.message?.includes('operation-not-allowed');
       if (isOperationNotAllowed) {
         console.warn("Email/Password provider disabled in Firebase Console. Entering secure preview mode.");
-        forceSandbox();
-        setAuthSuccess("Email/Password is disabled in Firebase Console. Seamlessly entering preview sandbox...");
+        forceSandbox({
+          segment: activeSegment,
+          companyName: company || (activeSegment === 'b2c' ? 'Sharma Family Workspace' : 'Aura Spaces Design Studio'),
+          displayName: name || (activeSegment === 'b2c' ? 'Rohit Sharma' : 'Ananya Sharma')
+        });
+        setAuthSuccess("Entering preview sandbox environment...");
       } else {
         console.error("Sign in failed:", err);
-        setAuthError(err.message || "Authentication failed. Please check your corporate credentials.");
+        setAuthError(err.message || `Authentication failed. Please check your credentials for ${activeSegment === 'b2c' ? 'Arqon Nest' : 'ArqonOS'}.`);
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Handle Register Firm with Modular Checkout & Payment Authorization
-  const handleRegisterFirmWithPayment = async (e: React.FormEvent) => {
+  // Handle Register with Modular / Group Checkout & Payment Authorization
+  const handleRegisterWithPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
     setAuthSuccess(null);
 
     // Validation
     if (!name.trim()) {
-      setAuthError("Authorized administrator full name is required.");
+      setAuthError(activeSegment === 'b2c' ? "Group organizer full name is required." : "Authorized administrator full name is required.");
       return;
     }
     if (!company.trim()) {
-      setAuthError("Interior Design firm name is required.");
+      setAuthError(activeSegment === 'b2c' ? "Group / Family Workspace name is required." : "Interior Design firm name is required.");
       return;
     }
     if (!email.trim() || !password.trim()) {
-      setAuthError("Corporate email and master password are required.");
+      setAuthError("Email and secure password are required.");
       return;
     }
     if (password.length < 6) {
-      setAuthError("Master password must be at least 6 characters.");
+      setAuthError("Password must be at least 6 characters.");
       return;
     }
 
@@ -218,48 +273,46 @@ export function Gateway() {
     setHoldRedirect(true);
 
     try {
-      // 1. Simulate real-time 256-bit merchant gateway handshake
-      setProcessingStep("Establishing 256-bit encrypted merchant tunnel...");
+      // 1. Handshake
+      setProcessingStep("Establishing 256-bit encrypted security tunnel...");
       await new Promise(r => setTimeout(r, 600));
 
-      // 2. Validate corporate signatory authority and GSTIN
-      setProcessingStep("Verifying corporate signing authority & banking credentials...");
+      // 2. Verification
+      setProcessingStep(activeSegment === 'b2c' ? "Verifying group organizer authorization & UPI/card details..." : "Verifying corporate signing authority & banking credentials...");
       await new Promise(r => setTimeout(r, 700));
 
-      // 3. Authorize recurring payment mandate
-      setProcessingStep("Authorizing recurring corporate monthly mandate...");
+      // 3. Authorization
+      setProcessingStep(activeSegment === 'b2c' ? "Authorizing group monthly subscription mandate..." : "Authorizing recurring corporate monthly mandate...");
       await new Promise(r => setTimeout(r, 700));
 
-      // 4. Provision ArqonOS tenant & modules
-      setProcessingStep("Provisioning multi-tenant ArqonOS workspace & modules...");
+      // 4. Provisioning
+      setProcessingStep(activeSegment === 'b2c' ? "Provisioning Arqon Nest group workspace & ledger..." : "Provisioning multi-tenant ArqonOS workspace & modules...");
       await new Promise(r => setTimeout(r, 600));
 
       // Generate verifiable audit records
-      const txnId = `TXN-ARQON-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+      const txnId = `TXN-${activeSegment === 'b2c' ? 'NEST' : 'ARQON'}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       const invId = `INV-2026-${Math.floor(10000 + Math.random() * 90000)}`;
       const valDates = getSubscriptionValidationDates();
-      const currentSegment: 'b2b' | 'b2c' = (segmentParam === 'b2b' || segmentParam === 'b2c') ? segmentParam : 'b2b';
-      const effectiveTotal = currentSegment === 'b2c' ? b2cTotal : b2bBilling.totalMonthlyPrice;
 
       const formattedPaymentMethod = 
         paymentChannel === 'upi' 
-          ? `Instant UPI (${corporateVpa})` 
+          ? `Instant UPI (${paymentVpa})` 
           : paymentChannel === 'card' 
-            ? `Corporate Card (ending in ${cardNumber.replace(/\s/g, '').slice(-4) || '8821'})` 
-            : `Net Banking (${corporateBank})`;
+            ? `${activeSegment === 'b2c' ? 'Personal/Family Card' : 'Corporate Card'} (ending in ${cardNumber.replace(/\s/g, '').slice(-4) || '8821'})` 
+            : `Net Banking (${selectedBank})`;
 
       const initData = {
-        segment: currentSegment,
-        addons: currentSegment === 'b2b' ? selectedAddons : [],
-        users: currentSegment === 'b2b' ? userCount : 3,
-        planId: planParam || '',
+        segment: activeSegment,
+        addons: activeSegment === 'b2b' ? selectedAddons : [],
+        users: activeSegment === 'b2b' ? b2bUserCount : nestMembersCount,
+        planId: activeSegment === 'b2c' ? nestPlanId : '',
         role: role,
-        gstin: gstin.trim(),
+        gstin: activeSegment === 'b2b' ? gstin.trim() : '',
         billingCycleStart: valDates.startDate.toISOString(),
         billingCycleEnd: valDates.endDate.toISOString(),
         subscriptionValidUntil: valDates.endDate.toISOString(),
         lastPaymentDate: new Date().toISOString(),
-        lastPaymentAmount: effectiveTotal,
+        lastPaymentAmount: currentTotalAmount,
         lastTransactionId: txnId,
         paymentMethod: formattedPaymentMethod
       };
@@ -269,22 +322,23 @@ export function Gateway() {
       } catch (authErr: any) {
         const isOperationNotAllowed = authErr.code === 'auth/operation-not-allowed' || authErr.message?.includes('operation-not-allowed');
         if (isOperationNotAllowed) {
-          console.warn("Email/Password provider disabled in Firebase Console. Seamlessly falling back to sandbox mode with complete profile.");
+          console.warn("Email/Password provider disabled in Firebase Console. Seamlessly falling back to sandbox mode.");
           forceSandbox({
             email,
             displayName: name,
             companyName: company,
             role,
-            gstin: gstin.trim(),
-            subscriptionTier: selectedAddons.length > 3 ? 'Pro' : 'Plus',
-            segment: currentSegment,
-            activeAddons: currentSegment === 'b2b' ? selectedAddons : [],
-            maxUsers: currentSegment === 'b2b' ? userCount : 3,
+            gstin: activeSegment === 'b2b' ? gstin.trim() : '',
+            subscriptionTier: activeSegment === 'b2c' ? (nestPlanId === 'nest_pro' ? 'Pro' : nestPlanId === 'nest_plus' ? 'Plus' : 'Starter') : (selectedAddons.length > 3 ? 'Pro' : 'Plus'),
+            segment: activeSegment,
+            activeAddons: activeSegment === 'b2b' ? selectedAddons : [],
+            maxUsers: activeSegment === 'b2b' ? b2bUserCount : nestMembersCount,
+            planId: activeSegment === 'b2c' ? nestPlanId : '',
             billingCycleStart: valDates.startDate.toISOString(),
             billingCycleEnd: valDates.endDate.toISOString(),
             subscriptionValidUntil: valDates.endDate.toISOString(),
             lastPaymentDate: new Date().toISOString(),
-            lastPaymentAmount: effectiveTotal,
+            lastPaymentAmount: currentTotalAmount,
             lastTransactionId: txnId,
             paymentMethod: formattedPaymentMethod
           });
@@ -303,22 +357,23 @@ export function Gateway() {
       setRegistrationReceipt({
         transactionId: txnId,
         invoiceId: invId,
-        firmName: company,
-        adminName: name,
+        entityName: company,
+        signatoryName: name,
         role: role,
-        gstin: gstin.trim(),
-        userCount: currentSegment === 'b2b' ? userCount : 3,
-        activeAddons: currentSegment === 'b2b' ? selectedAddons : [],
-        totalMonthlyPrice: effectiveTotal,
+        gstin: activeSegment === 'b2b' ? gstin.trim() : '',
+        userCount: activeSegment === 'b2b' ? b2bUserCount : nestMembersCount,
+        activeAddons: activeSegment === 'b2b' ? selectedAddons : [],
+        nestPlan: activeSegment === 'b2c' ? selectedNestPlan : null,
+        totalMonthlyPrice: currentTotalAmount,
         paymentMethod: formattedPaymentMethod,
         validationDates: valDates,
-        segment: currentSegment
+        segment: activeSegment
       });
 
-      setAuthSuccess("Payment authorized & firm provisioned successfully!");
+      setAuthSuccess(activeSegment === 'b2c' ? "Group workspace provisioned & payment authorized successfully!" : "Payment authorized & firm provisioned successfully!");
     } catch (err: any) {
-      console.error("Firm registration authorization failed:", err);
-      setAuthError(err.message || "Failed to authorize corporate payment. Please verify information and retry.");
+      console.error("Registration authorization failed:", err);
+      setAuthError(err.message || "Failed to authorize payment. Please verify information and retry.");
     } finally {
       setSubmitting(false);
       setProcessingStep('');
@@ -328,7 +383,7 @@ export function Gateway() {
   // Launch workspace from receipt view
   const handleLaunchWorkspace = () => {
     setHoldRedirect(false);
-    const targetSegment = registrationReceipt?.segment || 'b2b';
+    const targetSegment = registrationReceipt?.segment || activeSegment || 'b2b';
     let targetPath = `/workspace/${targetSegment}`;
     if (targetSegment === 'b2b') {
       const activeApp = registrationReceipt?.activeAddons?.[0] || 'quest';
@@ -353,11 +408,11 @@ export function Gateway() {
           const userSnap = await getDoc(userRef);
           if (userSnap.exists()) {
             const data = userSnap.data();
-            const firmName = data?.companyName || "your firm";
+            const entityName = data?.companyName || "your workspace";
             setIsExistingUser(true);
             setIsRegister(false);
-            setAuthSuccess(`Account verified! You are already registered under "${firmName}". Logging you into your workspace...`);
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            setAuthSuccess(`Account verified! You are already registered under "${entityName}". Logging you into ${activeSegment === 'b2c' ? 'Nest' : 'ArqonOS'}...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
           } else {
             setAuthSuccess("Authenticated with Google! Initializing workspace gateway...");
           }
@@ -369,8 +424,11 @@ export function Gateway() {
       const isOperationNotAllowed = err.code === 'auth/operation-not-allowed' || err.message?.includes('operation-not-allowed');
       if (isOperationNotAllowed) {
         console.warn("Google provider disabled in Firebase Console. Entering sandbox preview mode.");
-        forceSandbox();
-        setAuthSuccess("Google Sign-in is disabled in Firebase Console. Seamlessly entering sandbox preview...");
+        forceSandbox({
+          segment: activeSegment,
+          companyName: activeSegment === 'b2c' ? 'Sharma Family Workspace' : 'Aura Spaces Design Studio'
+        });
+        setAuthSuccess("Google Sign-in disabled in Firebase Console. Entering sandbox preview...");
       } else {
         console.error("Google Auth failed:", err);
         setAuthError(err.message || "Google authentication failed.");
@@ -393,29 +451,95 @@ export function Gateway() {
   }
 
   const isAuthenticated = user !== null || isMockMode;
+  const isB2C = activeSegment === 'b2c';
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 md:px-12 flex flex-col items-center justify-center relative bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       
-      {/* Background Ambience */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#3b82f60a] rounded-full blur-[140px] pointer-events-none" />
+      {/* Background Ambience based on active workspace */}
+      <div 
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full blur-[140px] pointer-events-none transition-all duration-700" 
+        style={{ backgroundColor: isB2C ? '#22c55e10' : '#3b82f610' }}
+      />
 
       {/* Top Banner / Headline */}
-      <div className="text-center mb-8 relative z-10 max-w-3xl">
-        <div className="inline-flex items-center justify-center bg-[#3b82f612] p-3.5 rounded-xl mb-4 shadow-sm border border-[#3b82f626]">
-          <Layers className="w-8 h-8 text-[#3b82f6]" />
+      <div className="text-center mb-6 relative z-10 max-w-3xl">
+        
+        {/* Workspace Segment Switcher */}
+        {!registrationReceipt && (
+          <div className="inline-flex p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-md mb-5">
+            <button
+              type="button"
+              id="segment-tab-b2b"
+              onClick={() => {
+                setActiveSegment('b2b');
+                setAuthError(null);
+                setIsExistingUser(false);
+              }}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                !isB2C 
+                  ? "bg-[#3b82f6] text-white shadow-lg shadow-blue-500/25" 
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>ArqonOS (B2B Suite)</span>
+            </button>
+            <button
+              type="button"
+              id="segment-tab-b2c"
+              onClick={() => {
+                setActiveSegment('b2c');
+                setAuthError(null);
+                setIsExistingUser(false);
+              }}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                isB2C 
+                  ? "bg-[#22c55e] text-white shadow-lg shadow-green-500/25" 
+                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Arqon Nest (B2C Workspace)</span>
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <div 
+            className="p-3 rounded-xl border shadow-sm transition-colors"
+            style={{
+              backgroundColor: isB2C ? '#22c55e15' : '#3b82f615',
+              borderColor: isB2C ? '#22c55e30' : '#3b82f630'
+            }}
+          >
+            {isB2C ? (
+              <Wallet className="w-7 h-7 text-[#22c55e]" />
+            ) : (
+              <Layers className="w-7 h-7 text-[#3b82f6]" />
+            )}
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            {isB2C ? "Arqon Nest Gateway" : "ArqonOS Gateway"}
+          </h1>
         </div>
-        <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-2 tracking-tight transition-colors">
-          ArqonOS Gateway
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-medium max-w-xl mx-auto">
+
+        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium max-w-xl mx-auto">
           {registrationReceipt 
-            ? "Your organization has been officially registered and verified on ArqonOS."
+            ? isB2C 
+              ? "Your group workspace has been officially registered and verified on Arqon Nest."
+              : "Your organization has been officially registered and verified on ArqonOS."
             : isAuthenticated 
-              ? "Your identity has been verified. Welcome to the operating system."
+              ? isB2C
+                ? "Your identity has been verified. Welcome to your Nest collaborative workspace."
+                : "Your identity has been verified. Welcome to the interior operating system."
               : isRegister 
-                ? "Register your interior design firm with modular SaaS checkout & corporate payment authorization."
-                : "Authenticate with your corporate credentials to initialize your workspace."}
+                ? isB2C
+                  ? "Register your shared group workspace (family, friends, roommates) with group-based SaaS pricing."
+                  : "Register your interior design firm with modular SaaS checkout & corporate payment authorization."
+                : isB2C
+                  ? "Sign in with your personal or group credentials to access your family & friends finances."
+                  : "Authenticate with your corporate credentials to initialize your firm workspace."}
         </p>
         
         {isMockMode && (
@@ -427,7 +551,9 @@ export function Gateway() {
 
       <AnimatePresence mode="wait">
         {registrationReceipt ? (
-          /* Official Registration Receipt & Post-Activation Invoice Screen */
+          /* ============================================================
+             REGISTRATION RECEIPT: Tailored for B2C Nest vs B2B ArqonOS
+             ============================================================ */
           <motion.div
             key="registration-receipt"
             initial={{ opacity: 0, scale: 0.96 }}
@@ -438,18 +564,30 @@ export function Gateway() {
           >
             {/* Header Badge */}
             <div className="flex flex-col items-center text-center space-y-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center shadow-lg">
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
+                style={{
+                  backgroundColor: isB2C ? '#22c55e15' : '#3b82f615',
+                  borderColor: isB2C ? '#22c55e30' : '#3b82f630',
+                  color: isB2C ? '#22c55e' : '#3b82f6'
+                }}
+              >
                 <CheckCircle2 className="w-9 h-9" />
               </div>
               <div>
-                <span className="text-[11px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                  Corporate Payment Authorized • Firm Registered
+                <span 
+                  className="text-[11px] font-black uppercase tracking-widest block"
+                  style={{ color: isB2C ? '#22c55e' : '#3b82f6' }}
+                >
+                  {isB2C ? "Group Workspace Activated • Payment Authorized" : "Corporate Payment Authorized • Firm Registered"}
                 </span>
                 <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
-                  Welcome, {registrationReceipt.firmName}!
+                  Welcome, {registrationReceipt.entityName}!
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Your tenant workspace is provisioned with active monthly validation and 256-bit encrypted security.
+                  {isB2C 
+                    ? "Your family & group finance workspace is ready with verified member quotas and active monthly validation."
+                    : "Your tenant workspace is provisioned with active monthly validation and 256-bit encrypted security."}
                 </p>
               </div>
             </div>
@@ -482,7 +620,7 @@ export function Gateway() {
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                   <Receipt className="w-4 h-4 text-[#3b82f6]" />
-                  <span>Official Corporate Tax Invoice</span>
+                  <span>{isB2C ? "Official Group Subscription Receipt" : "Official Corporate Tax Invoice"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-300">
@@ -504,16 +642,22 @@ export function Gateway() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Billed Entity</span>
-                  <span className="font-extrabold text-slate-900 dark:text-white">{registrationReceipt.firmName}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    {isB2C ? "Registered Group" : "Billed Entity"}
+                  </span>
+                  <span className="font-extrabold text-slate-900 dark:text-white">{registrationReceipt.entityName}</span>
                   {registrationReceipt.gstin && (
                     <span className="text-[10px] font-mono text-slate-500 block">GSTIN: {registrationReceipt.gstin}</span>
                   )}
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Authorized Signatory</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{registrationReceipt.adminName}</span>
-                  <span className="text-[10px] text-[#3b82f6] font-bold block">{registrationReceipt.role}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    {isB2C ? "Group Organizer" : "Authorized Signatory"}
+                  </span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{registrationReceipt.signatoryName}</span>
+                  <span className="text-[10px] font-bold block" style={{ color: isB2C ? '#22c55e' : '#3b82f6' }}>
+                    {registrationReceipt.role}
+                  </span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Amount Paid</span>
@@ -523,7 +667,7 @@ export function Gateway() {
                   <span className="text-[10px] text-slate-400 block">/month recurring</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Invoice Number</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Receipt No.</span>
                   <span className="font-mono text-slate-700 dark:text-slate-300">{registrationReceipt.invoiceId}</span>
                 </div>
                 <div>
@@ -533,43 +677,59 @@ export function Gateway() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Team Seats</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{registrationReceipt.userCount} Users</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    {isB2C ? "Group Members" : "Team Seats"}
+                  </span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{registrationReceipt.userCount} Members</span>
                 </div>
               </div>
 
-              {/* Provisioned Engines List */}
+              {/* Provisioned Engines / Plan Details */}
               <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">
-                  Active Provisioned Engines:
+                  {isB2C ? "Activated Group Capabilities:" : "Active Provisioned Engines:"}
                 </span>
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="px-2 py-1 bg-[#3b82f615] text-[#3b82f6] text-[10px] font-bold rounded-md border border-[#3b82f633]">
-                    Quest (Tasks, Calendar, Chat)
-                  </span>
-                  <span className="px-2 py-1 bg-[#a855f715] text-[#a855f7] text-[10px] font-bold rounded-md border border-[#a855f733]">
-                    People (Identity, Roles, Access)
-                  </span>
-                  <span className="px-2 py-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded-md">
-                    Flow Lite (5 Workflows)
-                  </span>
-                  {registrationReceipt.activeAddons.map((addonId: string) => {
-                    const addon = PRICING_CONFIG.ADD_ONS.find(a => a.id === addonId);
-                    return (
-                      <span 
-                        key={addonId} 
-                        className="px-2 py-1 text-[10px] font-bold rounded-md border"
-                        style={{ 
-                          backgroundColor: `${addon?.color || '#3b82f6'}15`, 
-                          color: addon?.color || '#3b82f6',
-                          borderColor: `${addon?.color || '#3b82f6'}33`
-                        }}
-                      >
-                        + {addon?.name || addonId}
-                      </span>
-                    );
-                  })}
-                </div>
+                {isB2C ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2.5 py-1 bg-[#22c55e15] text-[#22c55e] text-[10px] font-bold rounded-md border border-[#22c55e33]">
+                      {registrationReceipt.nestPlan?.name || 'Nest Plus'} Plan
+                    </span>
+                    <span className="px-2 py-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded-md">
+                      Shared Income & Expense Tracking
+                    </span>
+                    <span className="px-2 py-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded-md">
+                      Smart Nudges & Vaults
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="px-2 py-1 bg-[#3b82f615] text-[#3b82f6] text-[10px] font-bold rounded-md border border-[#3b82f633]">
+                      Quest (Tasks, Calendar, Chat)
+                    </span>
+                    <span className="px-2 py-1 bg-[#a855f715] text-[#a855f7] text-[10px] font-bold rounded-md border border-[#a855f733]">
+                      People (Identity, Roles, Access)
+                    </span>
+                    <span className="px-2 py-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold rounded-md">
+                      Flow Lite (5 Workflows)
+                    </span>
+                    {registrationReceipt.activeAddons.map((addonId: string) => {
+                      const addon = PRICING_CONFIG.ADD_ONS.find(a => a.id === addonId);
+                      return (
+                        <span 
+                          key={addonId} 
+                          className="px-2 py-1 text-[10px] font-bold rounded-md border"
+                          style={{ 
+                            backgroundColor: `${addon?.color || '#3b82f6'}15`, 
+                            color: addon?.color || '#3b82f6',
+                            borderColor: `${addon?.color || '#3b82f6'}33`
+                          }}
+                        >
+                          + {addon?.name || addonId}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -577,14 +737,19 @@ export function Gateway() {
             <button
               type="button"
               onClick={handleLaunchWorkspace}
-              className="w-full py-4 bg-[#3b82f6] hover:bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-blue-500/20 active:scale-98 flex items-center justify-center gap-2"
+              className="w-full py-4 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl active:scale-98 flex items-center justify-center gap-2"
+              style={{
+                backgroundColor: isB2C ? '#22c55e' : '#3b82f6'
+              }}
             >
-              <span>Launch Firm Workspace</span>
+              <span>{isB2C ? "Launch Nest Workspace" : "Launch Firm Workspace"}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>
         ) : !isAuthenticated ? (
-          /* Gateway Card: Sign In / Register Firm */
+          /* ============================================================
+             GATEWAY CARD: Sign In / Register (Adapted for B2C vs B2B)
+             ============================================================ */
           <motion.div 
             key="auth-card"
             initial={{ opacity: 0, y: 15 }}
@@ -604,50 +769,151 @@ export function Gateway() {
                   {/* Top Eyebrow */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-[#3b82f615] text-[#3b82f6] text-[10px] uppercase font-black tracking-widest rounded-md border border-[#3b82f625]">
-                        Modular SaaS Engine
+                      <span 
+                        className="px-2.5 py-1 text-[10px] uppercase font-black tracking-widest rounded-md border"
+                        style={{
+                          backgroundColor: isB2C ? '#22c55e15' : '#3b82f615',
+                          color: isB2C ? '#22c55e' : '#3b82f6',
+                          borderColor: isB2C ? '#22c55e30' : '#3b82f630'
+                        }}
+                      >
+                        {isB2C ? 'Group-Based SaaS Model' : 'Modular SaaS Engine'}
                       </span>
                       <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                        {segmentParam === 'b2c' ? 'B2C Nest Group' : 'B2B Core Bundle'}
+                        {isB2C ? 'B2C Mass Adoption' : 'B2B Core Revenue Engine'}
                       </span>
                     </div>
                   </div>
 
-                  {segmentParam === 'b2c' ? (
-                    /* B2C Nest Group Plan */
+                  {isB2C ? (
+                    /* ============================================================
+                       B2C ARQON NEST GROUP PRICING ENGINE
+                       ============================================================ */
                     <div className="space-y-5">
                       <div>
                         <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                          Arqon Nest Group
+                          Arqon Nest Workspace
                         </h2>
                         <p className="text-xs font-bold text-[#22c55e] uppercase tracking-wider mt-0.5">
-                          Collaborative Group Finances
+                          Collaborative Group Finance Organizer
                         </p>
                       </div>
 
-                      {selectedNestPlan && (
-                        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                              {selectedNestPlan.name.replace(' ⭐', '')} Plan
-                            </span>
-                            <span className="text-xl font-black text-slate-950 dark:text-white">
-                              ₹{selectedNestPlan.price}/mo
+                      {/* Monthly Validation Dates Banner */}
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                            <Calendar className="w-4 h-4 shrink-0" />
+                            <span className="text-[11px] font-black uppercase tracking-wider">
+                              Monthly Validation Cycle
                             </span>
                           </div>
-                          <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-                            {selectedNestPlan.includes.map((inc, i) => (
-                              <div key={i} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                                <Check className="w-3.5 h-3.5 text-[#22c55e] shrink-0" />
-                                <span>{inc}</span>
-                              </div>
-                            ))}
+                          <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold rounded">
+                            30 Days
+                          </span>
+                        </div>
+                        <div className="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                          {validationDates.startFormatted} – {validationDates.endFormatted}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                          Your group's shared ledger activates immediately upon registration. Auto-renews on {validationDates.endFormatted}.
+                        </p>
+                      </div>
+
+                      {/* Interactive Nest Plan Selector */}
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
+                          Select Nest Group Plan:
+                        </span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {PRICING_CONFIG.NEST_PLANS.map((plan) => {
+                            const isSelected = nestPlanId === plan.id;
+                            return (
+                              <button
+                                key={plan.id}
+                                type="button"
+                                onClick={() => setNestPlanId(plan.id)}
+                                className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                                  isSelected 
+                                    ? "bg-white dark:bg-slate-900 border-[#22c55e] ring-2 ring-[#22c55e]/20 shadow-sm" 
+                                    : "bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 opacity-75 hover:opacity-100"
+                                }`}
+                              >
+                                <div>
+                                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                                    {plan.name.replace(' ⭐', '')}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
+                                    3 users incl.
+                                  </span>
+                                </div>
+                                <span className={`text-sm font-black mt-2 ${isSelected ? "text-[#22c55e]" : "text-slate-700 dark:text-slate-300"}`}>
+                                  ₹{plan.price}/mo
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Group Members Stepper (3 included, extra at ₹99/user/month) */}
+                      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
+                              Total Group Members
+                            </span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              3 members included in plan
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                            <button
+                              type="button"
+                              onClick={() => adjustNestMembers(-1)}
+                              disabled={nestMembersCount <= 1}
+                              className="w-7 h-7 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-8 text-center font-black text-xs text-slate-900 dark:text-white">
+                              {nestMembersCount}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => adjustNestMembers(1)}
+                              className="w-7 h-7 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </div>
-                      )}
+
+                        {nestExtraMembers > 0 && (
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                            <span className="text-slate-500 font-medium">
+                              {nestExtraMembers} extra member{nestExtraMembers > 1 ? 's' : ''} × ₹99/user
+                            </span>
+                            <span className="font-extrabold text-[#22c55e]">
+                              + ₹{nestExtraMembers * 99}/mo
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Locked Nest Pricing Rule Banner */}
+                      <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs flex gap-2.5 items-start">
+                        <Info className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
+                        <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed text-[11px]">
+                          <span className="text-[#22c55e] font-bold">Group Pricing Rule:</span> 3 members included. Extra members are ₹99/user/month. Total = Base (₹{selectedNestPlan.price}) + ({nestExtraMembers} × ₹99).
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    /* B2B Firm Plan & Impact Calculation */
+                    /* ============================================================
+                       B2B ARQONOS FIRM PRICING ENGINE
+                       ============================================================ */
                     <div className="space-y-5">
                       <div>
                         <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -772,18 +1038,18 @@ export function Gateway() {
                           <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
                             <button
                               type="button"
-                              onClick={() => adjustUsers(-1)}
-                              disabled={userCount <= 1}
+                              onClick={() => adjustB2BUsers(-1)}
+                              disabled={b2bUserCount <= 1}
                               className="w-7 h-7 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </button>
                             <span className="w-8 text-center font-black text-xs text-slate-900 dark:text-white">
-                              {userCount}
+                              {b2bUserCount}
                             </span>
                             <button
                               type="button"
-                              onClick={() => adjustUsers(1)}
+                              onClick={() => adjustB2BUsers(1)}
                               className="w-7 h-7 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -822,12 +1088,12 @@ export function Gateway() {
                         Total Monthly Liability
                       </span>
                       <span className="text-[11px] text-slate-500 font-bold block">
-                        {segmentParam === 'b2c' ? 'Nest Group Plan' : `${userCount} Team Members Included`}
+                        {isB2C ? `${nestMembersCount} Group Members Included` : `${b2bUserCount} Team Members Included`}
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-3xl font-black text-slate-950 dark:text-white tracking-tight">
-                        ₹{(segmentParam === 'b2c' ? b2cTotal : b2bBilling.totalMonthlyPrice).toLocaleString('en-IN')}
+                        ₹{currentTotalAmount.toLocaleString('en-IN')}
                       </span>
                       <span className="text-xs text-slate-500 font-bold block">/month recurring</span>
                     </div>
@@ -836,7 +1102,7 @@ export function Gateway() {
               </div>
             )}
 
-            {/* Right Column: Form (Sign In OR Register Firm with Payment Authorization) */}
+            {/* Right Column: Form (Sign In OR Register with Payment Authorization) */}
             <div className={isRegister ? "lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-6" : "w-full"}>
               <div>
                 {/* Tab Selectors */}
@@ -846,22 +1112,25 @@ export function Gateway() {
                     onClick={() => { setIsRegister(false); setAuthError(null); setIsExistingUser(false); }}
                     className={`flex-1 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest transition-all ${
                       !isRegister 
-                        ? "bg-white dark:bg-slate-800 text-[#3b82f6] shadow-sm" 
+                        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-black" 
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     }`}
                   >
-                    Sign In
+                    {isB2C ? "Sign In to Nest" : "Sign In to Firm"}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setIsRegister(true); setAuthError(null); setIsExistingUser(false); }}
                     className={`flex-1 py-2.5 rounded-md text-xs font-bold uppercase tracking-widest transition-all ${
                       isRegister 
-                        ? "bg-white dark:bg-slate-800 text-[#3b82f6] shadow-sm" 
+                        ? "bg-white dark:bg-slate-800 shadow-sm font-black" 
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     }`}
+                    style={{
+                      color: isRegister ? (isB2C ? '#22c55e' : '#3b82f6') : undefined
+                    }}
                   >
-                    Register Firm
+                    {isB2C ? "Register Group" : "Register Firm"}
                   </button>
                 </div>
 
@@ -871,9 +1140,9 @@ export function Gateway() {
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-extrabold uppercase tracking-wider text-[10px] mb-0.5 text-amber-700 dark:text-amber-300">
-                        Firm Already Registered
+                        {isB2C ? "Group / User Already Registered" : "Firm Already Registered"}
                       </p>
-                      <span>This email or firm is already registered in the system. Switched to Sign In mode for your convenience.</span>
+                      <span>This email or entity is already registered. Switched to Sign In mode for your convenience.</span>
                     </div>
                   </div>
                 )}
@@ -889,12 +1158,13 @@ export function Gateway() {
                         type="button"
                         onClick={() => {
                           forceSandbox({
-                            displayName: name || 'Firm Director',
-                            companyName: company || 'Design Studio',
+                            displayName: name || (isB2C ? 'Rohit Sharma' : 'Firm Director'),
+                            companyName: company || (isB2C ? 'Sharma Family Workspace' : 'Design Studio'),
                             role: role,
-                            gstin: gstin,
-                            activeAddons: selectedAddons,
-                            maxUsers: userCount
+                            segment: activeSegment,
+                            gstin: isB2C ? '' : gstin,
+                            activeAddons: isB2C ? [] : selectedAddons,
+                            maxUsers: isB2C ? nestMembersCount : b2bUserCount
                           });
                           setAuthError(null);
                           setAuthSuccess("Bypassed Firebase Auth limits! Seamlessly entering preview sandbox...");
@@ -916,20 +1186,24 @@ export function Gateway() {
 
                 {isRegister ? (
                   /* ============================================================
-                     REGISTER FIRM FORM: Full Corporate Profile & Payment Authorization
+                     REGISTER FORM: Tailored for B2C Nest Group vs B2B Firm
                      ============================================================ */
-                  <form onSubmit={handleRegisterFirmWithPayment} className="space-y-4">
+                  <form onSubmit={handleRegisterWithPayment} className="space-y-4">
                     {/* Authority Notice Banner */}
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2.5 text-xs text-emerald-700 dark:text-emerald-300 font-bold">
                       <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-500" />
-                      <span>Authorized Management: Signatory verified to execute corporate recurring liability.</span>
+                      <span>
+                        {isB2C 
+                          ? "Group Organizer: Authorized to initiate shared family/group finances." 
+                          : "Authorized Management: Signatory verified to execute corporate recurring liability."}
+                      </span>
                     </div>
 
-                    {/* Signatory Full Name & Role */}
+                    {/* Name & Role */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Administrator Name *
+                          {isB2C ? "Organizer Full Name *" : "Administrator Name *"}
                         </label>
                         <div className="relative">
                           <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -937,68 +1211,86 @@ export function Gateway() {
                             type="text" 
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Ananya Sharma" 
+                            placeholder={isB2C ? "Rohit Sharma" : "Ananya Sharma"} 
                             required
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Management Role *
+                          {isB2C ? "Group Role *" : "Management Role *"}
                         </label>
                         <select
                           value={role}
                           onChange={(e) => setRole(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 px-3 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 px-3 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                         >
-                          <option value="General Manager">General Manager (Director)</option>
-                          <option value="Account">Account (Finance Lead)</option>
-                          <option value="Lead Designer">Lead Designer (Partner)</option>
+                          {isB2C ? (
+                            <>
+                              <option value="Group Organizer">Group Organizer (Admin)</option>
+                              <option value="Family Head">Family Head</option>
+                              <option value="Co-Organizer">Co-Organizer</option>
+                              <option value="Member">Member</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value="General Manager">General Manager (Director)</option>
+                              <option value="Account">Account (Finance Lead)</option>
+                              <option value="Lead Designer">Lead Designer (Partner)</option>
+                              <option value="Coordinator">Coordinator</option>
+                            </>
+                          )}
                         </select>
                       </div>
                     </div>
 
-                    {/* Interior Design Firm Name & Optional GSTIN */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Group/Firm Name & GSTIN */}
+                    <div className={isB2C ? "space-y-1" : "grid grid-cols-1 sm:grid-cols-2 gap-3"}>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Design Firm / Entity *
+                          {isB2C ? "Group / Family Workspace Name *" : "Design Firm / Entity *"}
                         </label>
                         <div className="relative">
-                          <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          {isB2C ? (
+                            <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          ) : (
+                            <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          )}
                           <input 
                             type="text" 
                             value={company}
                             onChange={(e) => setCompany(e.target.value)}
-                            placeholder="Aura Spaces Pvt Ltd" 
+                            placeholder={isB2C ? "Sharma Family Workspace" : "Aura Spaces Pvt Ltd"} 
                             required
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          GSTIN (Optional Tax Invoice)
-                        </label>
-                        <input 
-                          type="text" 
-                          value={gstin}
-                          onChange={(e) => setGstin(e.target.value.toUpperCase())}
-                          placeholder="27AAACA1234A1Z5" 
-                          maxLength={15}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 px-3 text-xs font-mono font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
-                        />
-                      </div>
+                      {!isB2C && (
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
+                            GSTIN (Optional Tax Invoice)
+                          </label>
+                          <input 
+                            type="text" 
+                            value={gstin}
+                            onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                            placeholder="27AAACA1234A1Z5" 
+                            maxLength={15}
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 px-3 text-xs font-mono font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    {/* Corporate Email & Master Password */}
+                    {/* Email & Password */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Work Email *
+                          {isB2C ? "Personal / Group Email *" : "Work Email *"}
                         </label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -1006,16 +1298,16 @@ export function Gateway() {
                             type="email" 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="director@auraspaces.com" 
+                            placeholder={isB2C ? "rohit.sharma@gmail.com" : "director@auraspaces.com"} 
                             required
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-3 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Master Password *
+                          {isB2C ? "Password *" : "Master Password *"}
                         </label>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -1025,7 +1317,7 @@ export function Gateway() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••••••" 
                             required
-                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-9 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-9 pr-9 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                           />
                           <button
                             type="button"
@@ -1038,11 +1330,11 @@ export function Gateway() {
                       </div>
                     </div>
 
-                    {/* Corporate Payment Channels */}
+                    {/* Payment Channels */}
                     <div className="pt-2 space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                          Corporate Payment Channel
+                          {isB2C ? "Payment Method" : "Corporate Payment Channel"}
                         </span>
                         <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -1074,7 +1366,7 @@ export function Gateway() {
                           }`}
                         >
                           <CreditCard className="w-3.5 h-3.5" />
-                          <span>Corp Card</span>
+                          <span>{isB2C ? "Card" : "Corp Card"}</span>
                         </button>
                         <button
                           type="button"
@@ -1095,17 +1387,17 @@ export function Gateway() {
                         {paymentChannel === 'upi' && (
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                              Corporate UPI VPA (GPay, PhonePe, BHIM)
+                              {isB2C ? "UPI VPA (GPay, PhonePe, Paytm, BHIM)" : "Corporate UPI VPA"}
                             </label>
                             <input
                               type="text"
-                              value={corporateVpa}
-                              onChange={(e) => setCorporateVpa(e.target.value)}
-                              placeholder="firm@okhdfcbank"
-                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white"
+                              value={paymentVpa}
+                              onChange={(e) => setPaymentVpa(e.target.value)}
+                              placeholder={isB2C ? "sharma.family@okhdfcbank" : "firm@okhdfcbank"}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold outline-none text-slate-900 dark:text-white"
                             />
                             <p className="text-[10px] text-slate-400">
-                              Instant corporate authorization mandate will be sent directly to your UPI handle.
+                              Instant monthly subscription mandate will be sent directly to your UPI handle.
                             </p>
                           </div>
                         )}
@@ -1114,14 +1406,14 @@ export function Gateway() {
                           <div className="space-y-2">
                             <div className="space-y-1">
                               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                                Corporate Card Number
+                                {isB2C ? "Debit / Credit Card Number" : "Corporate Card Number"}
                               </label>
                               <input
                                 type="text"
                                 value={cardNumber}
                                 onChange={(e) => setCardNumber(e.target.value)}
                                 placeholder="4532 •••• •••• 8821"
-                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold outline-none text-slate-900 dark:text-white"
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -1134,7 +1426,7 @@ export function Gateway() {
                                   value={cardExpiry}
                                   onChange={(e) => setCardExpiry(e.target.value)}
                                   placeholder="MM/YY"
-                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white"
+                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold outline-none text-slate-900 dark:text-white"
                                 />
                               </div>
                               <div>
@@ -1147,7 +1439,7 @@ export function Gateway() {
                                   onChange={(e) => setCardCvv(e.target.value)}
                                   placeholder="•••"
                                   maxLength={4}
-                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white"
+                                  className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-mono font-bold outline-none text-slate-900 dark:text-white"
                                 />
                               </div>
                             </div>
@@ -1157,18 +1449,18 @@ export function Gateway() {
                         {paymentChannel === 'netbanking' && (
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                              Select Corporate Banking Gateway
+                              Select Banking Gateway
                             </label>
                             <select
-                              value={corporateBank}
-                              onChange={(e) => setCorporateBank(e.target.value)}
-                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white"
+                              value={selectedBank}
+                              onChange={(e) => setSelectedBank(e.target.value)}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg py-2 px-3 text-xs font-bold outline-none text-slate-900 dark:text-white"
                             >
-                              <option value="HDFC Bank Corporate Portal">HDFC Bank Corporate Banking</option>
-                              <option value="ICICI Bank Corporate Banking">ICICI Bank Corporate Portal</option>
-                              <option value="State Bank of India Corporate">State Bank of India (Commercial)</option>
-                              <option value="Axis Bank Commercial">Axis Bank Corporate Banking</option>
-                              <option value="Kotak Mahindra Corporate">Kotak Mahindra Commercial Portal</option>
+                              <option value="HDFC Bank Corporate Portal">HDFC Bank</option>
+                              <option value="ICICI Bank Corporate Banking">ICICI Bank</option>
+                              <option value="State Bank of India Corporate">State Bank of India</option>
+                              <option value="Axis Bank Commercial">Axis Bank</option>
+                              <option value="Kotak Mahindra Corporate">Kotak Mahindra Bank</option>
                             </select>
                           </div>
                         )}
@@ -1178,26 +1470,31 @@ export function Gateway() {
                     {/* Submit Button */}
                     <button
                       type="submit"
-                      disabled={submitting || !isAuthorizedRole}
-                      className="w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                      disabled={submitting}
+                      className="w-full py-3.5 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                      style={{
+                        backgroundColor: isB2C ? '#22c55e' : '#3b82f6'
+                      }}
                     >
                       {submitting ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-slate-400 border-t-white dark:border-t-slate-900 rounded-full animate-spin" />
-                          <span>{processingStep || "Authorizing Payment & Provisioning..."}</span>
+                          <div className="w-4 h-4 border-2 border-slate-400 border-t-white rounded-full animate-spin" />
+                          <span>{processingStep || "Authorizing & Provisioning..."}</span>
                         </>
                       ) : (
                         <>
-                          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                          <ShieldCheck className="w-4 h-4 text-white" />
                           <span>
-                            Authorize Payment & Register Firm (₹{(segmentParam === 'b2c' ? b2cTotal : b2bBilling.totalMonthlyPrice).toLocaleString('en-IN')}/mo)
+                            {isB2C 
+                              ? `Authorize & Register Group (₹${currentTotalAmount.toLocaleString('en-IN')}/mo)`
+                              : `Authorize Payment & Register Firm (₹${currentTotalAmount.toLocaleString('en-IN')}/mo)`}
                           </span>
                         </>
                       )}
                     </button>
 
                     <div className="text-center text-[10px] text-slate-400 font-medium">
-                      <span>256-bit Encrypted Banking Gateway • Instant GST Tax Invoice Generated</span>
+                      <span>256-bit Encrypted Gateway • Instant Subscription Verification</span>
                     </div>
                   </form>
                 ) : (
@@ -1208,7 +1505,7 @@ export function Gateway() {
                     {/* Email Address */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                        Work Email Address
+                        {isB2C ? "Personal / Group Email" : "Work Email Address"}
                       </label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -1216,9 +1513,9 @@ export function Gateway() {
                           type="email" 
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          placeholder="name@arqondesign.com" 
+                          placeholder={isB2C ? "rohit.sharma@gmail.com" : "name@arqondesign.com"} 
                           required
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                         />
                       </div>
                     </div>
@@ -1226,7 +1523,7 @@ export function Gateway() {
                     {/* Password */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                        Master Password
+                        {isB2C ? "Password" : "Master Password"}
                       </label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -1236,7 +1533,7 @@ export function Gateway() {
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••••••" 
                           required
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-10 pr-10 text-xs font-bold focus:border-[#3b82f6] outline-none text-slate-900 dark:text-white transition-colors"
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg py-2.5 pl-10 pr-10 text-xs font-bold outline-none text-slate-900 dark:text-white transition-colors focus:border-slate-400"
                         />
                         <button
                           type="button"
@@ -1252,9 +1549,14 @@ export function Gateway() {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full py-3 bg-[#3b82f6] hover:bg-blue-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                      className="w-full py-3 text-white rounded-lg text-xs font-bold uppercase tracking-widest transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                      style={{
+                        backgroundColor: isB2C ? '#22c55e' : '#3b82f6'
+                      }}
                     >
-                      {submitting ? "Processing Secure Token..." : "Initialize Workspace"}
+                      {submitting 
+                        ? "Processing Secure Token..." 
+                        : isB2C ? "Sign In to Nest Workspace" : "Initialize Firm Workspace"}
                     </button>
                   </form>
                 )}
@@ -1266,7 +1568,7 @@ export function Gateway() {
                   <div className="h-px bg-slate-200 dark:bg-slate-800 flex-grow" />
                 </div>
 
-                {/* Google Corporate Account Button */}
+                {/* Google Account Button */}
                 <button
                   type="button"
                   onClick={handleGoogleAuth}
@@ -1274,7 +1576,7 @@ export function Gateway() {
                   className="w-full py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-[0.98]"
                 >
                   <Chrome className="w-4 h-4 text-blue-500" />
-                  Google Corporate Account
+                  {isB2C ? "Continue with Google Account" : "Google Corporate Account"}
                 </button>
               </div>
             </div>
@@ -1297,18 +1599,30 @@ export function Gateway() {
                 {user?.photoURL ? (
                   <img src={user.photoURL} alt="User Avatar" referrerPolicy="no-referrer" className="w-11 h-11 rounded-full" />
                 ) : (
-                  <div className="w-11 h-11 bg-[#3b82f622] text-[#3b82f6] rounded-full flex items-center justify-center font-bold text-sm uppercase">
+                  <div 
+                    className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm uppercase"
+                    style={{
+                      backgroundColor: profile?.segment === 'b2c' ? '#22c55e22' : '#3b82f622',
+                      color: profile?.segment === 'b2c' ? '#22c55e' : '#3b82f6'
+                    }}
+                  >
                     {user?.displayName ? user.displayName.slice(0, 2) : (user?.email ? user.email.slice(0, 2) : 'US')}
                   </div>
                 )}
                 <div>
                   <div className="text-base font-black text-slate-900 dark:text-white">
-                    {user?.displayName || "Authorized Director"}
+                    {user?.displayName || "Authorized User"}
                   </div>
                   <div className="text-xs text-slate-500 font-bold flex items-center gap-2 mt-0.5">
-                    <span>{profile?.companyName ? `Firm: ${profile.companyName}` : `Active ID: ${user?.email || 'Mock Sandbox'}`}</span>
+                    <span>{profile?.companyName ? `Registered: ${profile.companyName}` : `Active ID: ${user?.email || 'Mock Sandbox'}`}</span>
                     {profile?.role && (
-                      <span className="px-1.5 py-0.5 bg-[#3b82f615] text-[#3b82f6] text-[10px] rounded font-bold uppercase">
+                      <span 
+                        className="px-1.5 py-0.5 text-[10px] rounded font-bold uppercase"
+                        style={{
+                          backgroundColor: profile?.segment === 'b2c' ? '#22c55e15' : '#3b82f615',
+                          color: profile?.segment === 'b2c' ? '#22c55e' : '#3b82f6'
+                        }}
+                      >
                         {profile.role}
                       </span>
                     )}
@@ -1348,7 +1662,7 @@ export function Gateway() {
                 </div>
                 <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium">For designers, architects, and agency owners managing the built environment.</p>
                 
-                {profile?.companyName && (
+                {profile?.segment === 'b2b' && profile?.companyName && (
                   <div className="p-3 bg-[#3b82f60a] border border-[#3b82f61a] rounded-lg text-xs font-bold text-[#3b82f6]">
                     🏢 Connected Firm: <span className="underline">{profile.companyName}</span>
                   </div>
@@ -1372,9 +1686,16 @@ export function Gateway() {
                   <ArrowRight className="text-slate-400 dark:text-slate-500 group-hover:text-[#22c55e] transition-colors w-6 h-6 sm:w-8 sm:h-8" />
                 </div>
                 <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium">Family and friends finance organizer. The intelligent core of your personal life.</p>
+                
+                {profile?.segment === 'b2c' && profile?.companyName && (
+                  <div className="p-3 bg-[#22c55e0a] border border-[#22c55e1a] rounded-lg text-xs font-bold text-[#22c55e]">
+                    🏡 Registered Group: <span className="underline">{profile.companyName}</span>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-2 pt-4">
                   <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded text-slate-500 dark:text-slate-400 group-hover:border-[#22c55e33] group-hover:text-[#22c55e] transition-colors">
-                    Nest
+                    Nest (Expenses, Budgets, Vaults, Nudges)
                   </span>
                 </div>
               </Link>
@@ -1399,7 +1720,7 @@ export function Gateway() {
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-[#94a3b8] transition-colors">
-                <Layers className="w-5 h-5" />
+                <Briefcase className="w-5 h-5" />
               </div>
               <div className="text-left">
                 <h3 className="font-bold text-slate-900 dark:text-white">Essence</h3>
